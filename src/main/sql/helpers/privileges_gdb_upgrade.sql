@@ -1,5 +1,5 @@
 -- a "geodatabase administrator" is missing elevated privileges 
--- to create a geodatabase if anything is returned
+-- to upgrade a geodatabase if anything is returned
 -- https://pro.arcgis.com/en/pro-app/help/data/geodatabases/manage-oracle/privileges-oracle.htm
 select * from (
         select
@@ -45,4 +45,21 @@ select * from (
             table_schema = 'SYS' 
         and table_name IN ('DBMS_CRYPTO')
         and grantee = user
+    union
+        select regexp_substr('ALTER ANY INDEX,CREATE ANY INDEX,CREATE ANY TRIGGER,CREATE ANY VIEW,DROP ANY INDEX,DROP ANY VIEW,SELECT ANY TABLE','[^,]+', 1, level) as missing
+            from dual
+        connect by regexp_substr('ALTER ANY INDEX,CREATE ANY INDEX,CREATE ANY TRIGGER,CREATE ANY VIEW,DROP ANY INDEX,DROP ANY VIEW,SELECT ANY TABLE', '[^,]+', 1, level) is not null
+        minus 
+        (
+        select privilege 
+        from 
+            user_sys_privs
+        union
+        select r.privilege
+        from
+            user_role_privs u
+        join
+            role_sys_privs r
+        on 
+            u.granted_role = r.role)
 ) order by missing;
