@@ -16,4 +16,4 @@ from
 where 
     table_schema = 'SYS' 
 and table_name IN ('DBMS_LOB','DBMS_LOCK','DBMS_PIPE','DBMS_UTILITY','DBMS_SQL','UTL_RAW')
-and grantee = 'PUBLIC';
+and grantee = 'PUBLIC'

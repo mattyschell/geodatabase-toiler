@@ -1,7 +1,7 @@
 -- a "geodatabase administrator" is missing elevated privileges 
 -- to upgrade a geodatabase if anything is returned
 -- https://pro.arcgis.com/en/pro-app/help/data/geodatabases/manage-oracle/privileges-oracle.htm
-select * from (
+select missing from (
         select
             REGEXP_SUBSTR('GRANT EXECUTE ON SYS.DBMS_PIPE TO PUBLIC,GRANT EXECUTE ON SYS.DBMS_LOCK TO PUBLIC,GRANT EXECUTE ON SYS.DBMS_LOB TO PUBLIC,GRANT EXECUTE ON SYS.DBMS_UTILITY TO PUBLIC,GRANT EXECUTE ON SYS.DBMS_SQL TO PUBLIC,GRANT EXECUTE ON SYS.UTL_RAW TO PUBLIC', '[^,]+', 1, LEVEL) AS missing
         from
@@ -62,4 +62,4 @@ select * from (
             role_sys_privs r
         on 
             u.granted_role = r.role)
-) order by missing;
+) order by missing
