@@ -7,7 +7,7 @@ import pathlib
 import cx_sde
 
 
-class gdb(object):
+class Gdb(object):
 
     def __init__(self):
 
@@ -73,18 +73,31 @@ class gdb(object):
         return True        
 
 
-if __name__ == '__main__':
+    def checkgdbcreationprivs(self):
 
-    a_gdb = gdb()
-    exitval = 1
+        # this one is a big old SQL that returns values
 
-    if a_gdb.checkconnection():
+        print(f"checking sde geodatabase enablement privileges from {self.sdeconn}")
+
+        sqlfilepath = os.path.join(pathlib.Path(__file__).parent.parent,
+                                   'sql',
+                                   'helpers',
+                                   'privileges_gdb_upgrade.sql')
         
-        if a_gdb.checkgdbadminprivs():
-                    
-            if a_gdb.checkmodules():
-                #must run the gauntlet to get a clean exit 
-                exitval = 0                
+        with open(sqlfilepath, 'r') as sqlfile:
+            sql = sqlfile.read() 
 
-    exit(exitval)          
+        sdereturn = cx_sde.selectacolumn(self.sdeconn,
+                                            sql)
+
+        if len(sdereturn) > 0:
+            for issue in sdereturn:
+                print(issue)
+            return False
+        else:
+            print (".")
+            return True
+
+
+        
 

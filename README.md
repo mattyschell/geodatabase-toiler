@@ -1,7 +1,7 @@
 # The ESRI Enterprise Geodatabase Administration Toilin'
 
-Code and helpers for ESRI Enterprise Geodatabases on Oracle 19c.
-
+Code and helpers for ESRI Enterprise Geodatabases on Oracle 19c.  It is our toil
+friends, our rules, the trick is to never be afraid.
 
 ## Requirements
 
@@ -17,9 +17,4 @@ Code and helpers for ESRI Enterprise Geodatabases on Oracle 19c.
 > testall.bat
 ```
 
-## Test A Geodatabase And Report Areas Of Toil
 
-```shell
-> set SDEFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\mschell.sde
-> checkgdb.bat
-```
