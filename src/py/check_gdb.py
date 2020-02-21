@@ -37,16 +37,18 @@ class gdb(object):
                                    'privileges_gdb_admin.sql')
         
         with open(sqlfilepath, 'r') as sqlfile:
-            sql = sqlfile.read().replace('\n', '')
+            sql = sqlfile.read() 
 
-            sdereturn = cx_sde.selectacolumn(self.sdeconn,
-                                             sql)
+        sdereturn = cx_sde.selectacolumn(self.sdeconn,
+                                            sql)
 
-            if len(sdereturn) > 0:
-                for issue in sdereturn:
-                    print(issue)
-            else:
-                print (".")
+        if len(sdereturn) > 0:
+            for issue in sdereturn:
+                print(issue)
+            return False
+        else:
+            print (".")
+            return True
 
 
     def checkmodules(self):
@@ -58,28 +60,31 @@ class gdb(object):
                                    'gdb_requirements.sql')
         
         with open(sqlfilepath, 'r') as sqlfile:
-            sql = sqlfile.read().replace('\n', '')
+            sql = sqlfile.read() 
 
+        try:
             sdereturn = cx_sde.execute_immediate(self.sdeconn,
                                                  sql)
-
-            if not sdereturn:
-                print("see screen output for errors")
-            else:
-                print (".")
+        except:
+            print("see screen output for errors")
+            return False
+            
+        print (".")
+        return True        
 
 
 if __name__ == '__main__':
 
     a_gdb = gdb()
+    exitval = 1
 
     if a_gdb.checkconnection():
         
-        a_gdb.checkgdbadminprivs()
+        if a_gdb.checkgdbadminprivs():
+                    
+            if a_gdb.checkmodules():
+                #must run the gauntlet to get a clean exit 
+                exitval = 0                
 
-        a_gdb.checkmodules()
-
-    else:
-        print (f"cant connect using {a_gdb.sdeconn}")
-           
+    exit(exitval)          
 

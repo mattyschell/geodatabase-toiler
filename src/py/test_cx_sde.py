@@ -157,9 +157,10 @@ class UtilsTestCase(unittest.TestCase):
         dummyfile = os.path.join(pathlib.Path(__file__).parent.parent,
                                  'sql',
                                  'dummy.sql')
-                                 
+
+        # avoid stripping new lines and other formatting here, allow comments     
         with open(dummyfile, 'r') as sqlfile:
-            sql = sqlfile.read().replace('\n', '')
+            sql = sqlfile.read() 
 
         sdereturn = cx_sde.execute_immediate(self.sdeconn,
                                              sql)

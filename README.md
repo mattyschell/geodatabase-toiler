@@ -7,19 +7,19 @@ Code and helpers for ESRI Enterprise Geodatabases on Oracle 19c.
 
 1. ArcGIS Pro installed (ie Python 3+)
 2. Oracle 19c connectivity from this machine (ie 64 bit Oracle client)
-3. An .sde file that connects to the database (externalize as %SDEFILE%)
+3. An .sde file that connects to the geodatabase (externalize as %SDEFILE%)
 
 
 ## Test Repo Code Written For The Toilin'
 
 ```shell
-> set SDEFILE=T:\GIS\Internal\Connections\oracle19c\ditgsdv1\mschell_ditgsdv1.sde
+> set SDEFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\mschell.sde
 > testall.bat
 ```
 
 ## Test A Geodatabase And Report Areas Of Toil
 
 ```shell
-> set SDEFILE=T:\GIS\Internal\Connections\oracle19c\ditgsdv1\mschell_ditgsdv1.sde
-> testgdb.bat
+> set SDEFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\mschell.sde
+> checkgdb.bat
 ```

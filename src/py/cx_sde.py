@@ -17,10 +17,10 @@ def execute_immediate(sde,
 
         sde_return = sde_conn.execute(sql)
 
-    except:
+    except Exception as err:
 
         print (f"sql fail on {sql}") 
-        raise
+        raise ValueError(err)
 
     del sde_conn
     return sde_return
