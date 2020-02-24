@@ -11,10 +11,7 @@ class UtilsTestCase(unittest.TestCase):
     def setUpClass(self):
 
         self.sdeconn = os.environ['SDEFILE']
-
-        #self.testsqlfile = os.path.join(self.resourcepath,
-        #                                'test_sqlfile.sql')
-
+        
 
     @classmethod
     def tearDownClass(self):

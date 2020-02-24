@@ -1,37 +1,13 @@
 """Check for all prerequisites, and if met, enable enterprise gdb
 """
-import arcpy
 import os
-import pathlib
 
-import cx_sde
 import gdb
 
-def main():
+# C:\matt_projects\geodatabase-toiler>set SDEFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\mschell.sde
+# C:\matt_projects\geodatabase-toiler>set AUTHFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\keycodes
 
-    authfile = os.environ['AUTHFILE']
-    sdeconn  = os.environ['SDEFILE']
-    
-    babygdb = gdb.Gdb()
+authfile = os.environ['AUTHFILE']
 
-    if  babygdb.checkconnection() \
-    and babygdb.checkgdbadminprivs() \
-    and babygdb.checkmodules() \
-    and babygdb.checkgdbcreationprivs():
-        
-        # untested
-        # need to look into return codes and errors and TEMP logs
-
-        try:
-            arcpy.EnableEnterpriseGeodatabase_management(sdeconn, 
-                                                         authfile)
-        
-        except:
-
-            print (arcpy.GetMessages())
-
-main()     
-
-    
-
-        
+babygdb = gdb.Gdb()
+babygdb.enable(authfile)

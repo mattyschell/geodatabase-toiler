@@ -1,6 +1,4 @@
-"""This is a check on known requirements for a geodatabase.  Reminder: 
-don't think of this as tests, unit tests, etc.
-"""
+import arcpy
 import os
 import pathlib
 
@@ -13,7 +11,6 @@ class Gdb(object):
 
         self.sdeconn = os.environ['SDEFILE']
 
-
     def checkconnection(self):
 
         sql = 'SELECT dummy from dual'
@@ -25,53 +22,45 @@ class Gdb(object):
         else:
             return False
 
-    def checkgdbadminprivs(self):
+    def fetchsql(self,
+                 whichsql):
 
-        #this one is a big old SQL that returns values
-
-        print(f"checking sde geodatabase admin privs, ignore if {self.sdeconn} is not SDE")
-
-        sqlfilepath = os.path.join(pathlib.Path(__file__).parent.parent,
-                                   'sql',
-                                   'helpers',
-                                   'privileges_gdb_admin.sql')
+        # fetch any sql from the library under the repo sql directory
+        sqlfilepath = pathlib.Path(__file__).joinpath('sql').joinpath(whichsql)
         
         with open(sqlfilepath, 'r') as sqlfile:
             sql = sqlfile.read() 
 
+        return sql 
+
+    def checkgdbadminprivs(self):
+
+        #this one is a big old SQL that returns values
+
+        print(f"checking sde geodatabase admin privs using {self.sdeconn}")
+
         sdereturn = cx_sde.selectacolumn(self.sdeconn,
-                                            sql)
+                                         self.fetchsql('privileges_gdb_admin.sql'))
 
         if len(sdereturn) > 0:
             for issue in sdereturn:
                 print(issue)
             return False
         else:
-            print (".")
             return True
-
 
     def checkmodules(self):
 
         print("checking database modules required for an Enterprise Geodatabase")
 
-        sqlfilepath = os.path.join(pathlib.Path(__file__).parent.parent,
-                                   'sql',
-                                   'gdb_requirements.sql')
-        
-        with open(sqlfilepath, 'r') as sqlfile:
-            sql = sqlfile.read() 
-
         try:
             sdereturn = cx_sde.execute_immediate(self.sdeconn,
-                                                 sql)
+                                                 self.fetchsql('gdb_requirements.sql'))
         except:
             print("see screen output for errors")
             return False
-            
-        print (".")
-        return True        
 
+        return True        
 
     def checkgdbcreationprivs(self):
 
@@ -79,25 +68,46 @@ class Gdb(object):
 
         print(f"checking sde geodatabase enablement privileges from {self.sdeconn}")
 
-        sqlfilepath = os.path.join(pathlib.Path(__file__).parent.parent,
-                                   'sql',
-                                   'helpers',
-                                   'privileges_gdb_upgrade.sql')
-        
-        with open(sqlfilepath, 'r') as sqlfile:
-            sql = sqlfile.read() 
-
         sdereturn = cx_sde.selectacolumn(self.sdeconn,
-                                            sql)
+                                         self.fetchsql('privileges_gdb_upgrade.sql'))
 
         if len(sdereturn) > 0:
             for issue in sdereturn:
                 print(issue)
             return False
         else:
-            print (".")
-            return True
+            return True  
 
+    def enable(self,
+               authfile):
 
+        if  self.checkconnection() \
+        and self.checkgdbadminprivs() \
+        and self.checkmodules() \
+        and self.checkgdbcreationprivs():
+            
+            # untested
+
+            try:
+                arcpy.EnableEnterpriseGeodatabase_management(self.sdeconn, 
+                                                             authfile)
+            
+            except:
+
+                print (arcpy.GetMessages())
+
+        # put keywords next to the .sde file
+        keywordfile = pathlib.Path(self.sdeconn).parent.joinpath('keyword.txt')
+
+        print(f"exporting geodatabase configuration keywords to {keywordfile}")
+
+        try:
+
+            arcpy.ExportGeodatabaseConfigurationKeywords_management(self.sdeconn,
+                                                                    keywordfile)
+
+        except:
         
+            print (arcpy.GetMessages())
 
+        print (f"update {keywordfile} then run arcpy.ImportGeodatabaseConfigurationKeywords_management")
