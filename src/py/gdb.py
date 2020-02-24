@@ -26,7 +26,9 @@ class Gdb(object):
                  whichsql):
 
         # fetch any sql from the library under the repo sql directory
-        sqlfilepath = pathlib.Path(__file__).joinpath('sql').joinpath(whichsql)
+        sqlfilepath = pathlib.Path(__file__).parent.parent \
+                                            .joinpath('sql') \
+                                            .joinpath(whichsql)
         
         with open(sqlfilepath, 'r') as sqlfile:
             sql = sqlfile.read() 
@@ -66,7 +68,7 @@ class Gdb(object):
 
         # this one is a big old SQL that returns values
 
-        print(f"checking sde geodatabase enablement privileges from {self.sdeconn}")
+        print(f"checking sde geodatabase privileges from {self.sdeconn}")
 
         sdereturn = cx_sde.selectacolumn(self.sdeconn,
                                          self.fetchsql('privileges_gdb_upgrade.sql'))
@@ -95,6 +97,11 @@ class Gdb(object):
             except:
 
                 print (arcpy.GetMessages())
+
+        else:
+
+            raise ValueError(f"missing requirements to enable a geodatabase from {self.sdeconn}") 
+            
 
         # put keywords next to the .sde file
         keywordfile = pathlib.Path(self.sdeconn).parent.joinpath('keyword.txt')

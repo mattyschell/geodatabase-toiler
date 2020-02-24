@@ -22,7 +22,7 @@ class GdbTestCase(unittest.TestCase):
         pass
 
 
-    def test_acheckmodules(self):
+    def test_acheckconnection(self):
 
         #sql returns a single X
 
