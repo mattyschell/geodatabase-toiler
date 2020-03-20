@@ -1,15 +1,22 @@
 import arcpy
 import os
 import pathlib
+from subprocess import call
 
 import cx_sde
 
 
 class Gdb(object):
 
-    def __init__(self):
+    def __init__(self,
+                 arcpy2path=None):
 
         self.sdeconn = os.environ['SDEFILE']
+        
+        if arcpy2path is None:
+            self.arcpy2path = 'C:\Python27\ArcGIS10.6\python.exe'
+        else:
+            self.arcpy2path = arcpy2path
 
     def checkconnection(self):
 
@@ -78,7 +85,7 @@ class Gdb(object):
                 print(issue)
             return False
         else:
-            return True  
+            return True   
 
     def enable(self,
                authfile):
@@ -87,16 +94,25 @@ class Gdb(object):
         and self.checkgdbadminprivs() \
         and self.checkmodules() \
         and self.checkgdbcreationprivs():
+
+            py2enable = pathlib.Path(__file__).parent.parent \
+                                              .joinpath('py27') \
+                                              .joinpath('enable_gdb.py')
             
-            # untested
+            callcmd =  f"{self.arcpy2path} {py2enable} " 
 
             try:
-                arcpy.EnableEnterpriseGeodatabase_management(self.sdeconn, 
-                                                             authfile)
-            
+                
+                print(f"attempting to enable geodatabase from py27 using {callcmd}")
+                
+                exit_code = call(callcmd)
+                # looks like this
+                #arcpy.EnableEnterpriseGeodatabase_management(self.sdeconn, 
+                #                                             authfile)
+                print(f"exit code is {exit_code}")
             except:
 
-                print (arcpy.GetMessages())
+                raise ValueError(f"failure calling ArcGIS enable gdb with {callcmd}") 
 
         else:
 
