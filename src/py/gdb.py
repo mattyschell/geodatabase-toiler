@@ -1,6 +1,7 @@
 import arcpy
 import os
 import pathlib
+import logging
 from subprocess import call
 
 import cx_sde
@@ -17,6 +18,9 @@ class Gdb(object):
             self.arcpy2path = 'C:\Python27\ArcGIS10.6\python.exe'
         else:
             self.arcpy2path = arcpy2path
+
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
 
     def checkconnection(self):
 
@@ -46,7 +50,7 @@ class Gdb(object):
 
         #this one is a big old SQL that returns values
 
-        print(f"checking sde geodatabase admin privs using {self.sdeconn}")
+        self.logger.info('checking sde geodatabase admin privs using {0}'.format(self.sdeconn))
 
         sdereturn = cx_sde.selectacolumn(self.sdeconn,
                                          self.fetchsql('privileges_gdb_admin.sql'))
@@ -60,13 +64,15 @@ class Gdb(object):
 
     def checkmodules(self):
 
-        print("checking database modules required for an Enterprise Geodatabase")
+        self.logger.info('checking database modules required for an Enterprise Geodatabase')
 
         try:
             sdereturn = cx_sde.execute_immediate(self.sdeconn,
                                                  self.fetchsql('gdb_requirements.sql'))
         except:
-            print("see screen output for errors")
+            self.logger.error('modules issues reported')
+            #RAE from anonymous pl/sql block, probably a dumb pattern here
+            #self.logger.error('sql returns: %s', sdereturn)
             return False
 
         return True        
@@ -75,17 +81,29 @@ class Gdb(object):
 
         # this one is a big old SQL that returns values
 
-        print(f"checking sde geodatabase privileges from {self.sdeconn}")
+        self.logger.info('checking sde geodatabase privileges from {0}'.format(self.sdeconn))
 
         sdereturn = cx_sde.selectacolumn(self.sdeconn,
                                          self.fetchsql('privileges_gdb_upgrade.sql'))
 
         if len(sdereturn) > 0:
             for issue in sdereturn:
-                print(issue)
+                self.logger.error('{0}'.format(issue))
             return False
         else:
             return True   
+
+    def exportconfig(self):
+
+        # put keywords next to the .sde file
+        # assumption is that .sde files are well organized with folders 
+        # corresponding to databases and one "sde.sde" per folder with sidecar keywords
+        keywordfile = pathlib.Path(self.sdeconn).parent.joinpath('keyword.txt')
+
+        arcpy.ExportGeodatabaseConfigurationKeywords_management(self.sdeconn,
+                                                                keywordfile)
+
+
 
     def enable(self,
                authfile):
@@ -103,26 +121,22 @@ class Gdb(object):
 
             try:
                 
-                print(f"attempting to enable geodatabase from py27 using {callcmd}")
+                self.logger.info('attempting to enable geodatabase from py27 using {0}'.format(callcmd))
                 
                 exit_code = call(callcmd)
                 # looks like this
                 #arcpy.EnableEnterpriseGeodatabase_management(self.sdeconn, 
                 #                                             authfile)
-                print(f"exit code is {exit_code}")
+                self.logger.info('exit code is {0}'.format(exit_code))
             except:
-
+                self.logger.error('failure calling ArcGIS enable gdb with {0}'.format(callcmd))    
                 raise ValueError(f"failure calling ArcGIS enable gdb with {callcmd}") 
 
         else:
 
-            raise ValueError(f"missing requirements to enable a geodatabase from {self.sdeconn}") 
-            
+            self.logger.error('missing requirements to enable a geodatabase from {0}'.format(self.sdeconn))             
 
-        # put keywords next to the .sde file
-        keywordfile = pathlib.Path(self.sdeconn).parent.joinpath('keyword.txt')
-
-        print(f"exporting geodatabase configuration keywords to {keywordfile}")
+        self.logger.info('exporting geodatabase configuration keywords to {0}'.format(keywordfile))
 
         try:
 
@@ -133,4 +147,4 @@ class Gdb(object):
         
             print (arcpy.GetMessages())
 
-        print (f"update {keywordfile} then run arcpy.ImportGeodatabaseConfigurationKeywords_management")
+        self.logger.info('update {0} then run arcpy.ImportGeodatabaseConfigurationKeywords_management '.format(keywordfile))
