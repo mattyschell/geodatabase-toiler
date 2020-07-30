@@ -35,6 +35,13 @@ class GdbTestCase(unittest.TestCase):
 
         self.assertTrue(self.geodatabase.checkmodules)
 
+    #def test_cexportconfig(self):
+
+        # no way to test this until geodatabase created and have to run as sde
+        # dunno 
+        #self.geodatabase.exportconfig()
+
+
     
 
 if __name__ == '__main__':

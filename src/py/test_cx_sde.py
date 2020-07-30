@@ -18,7 +18,6 @@ class UtilsTestCase(unittest.TestCase):
 
         pass
 
-
     def test_aexecute_immediate(self):
 
         #sql returns a single X
@@ -152,7 +151,7 @@ class UtilsTestCase(unittest.TestCase):
 
         #refer to /src/sql/dummy.sql for anonymous pl/sql block style
         dummyfile = os.path.join(pathlib.Path(__file__).parent.parent,
-                                 'sql',
+                                 'sql_oracle',
                                  'dummy.sql')
 
         # avoid stripping new lines and other formatting here, allow comments     

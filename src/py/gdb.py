@@ -9,8 +9,9 @@ import cx_sde
 
 class Gdb(object):
 
-    def __init__(self,
-                 arcpy2path=None):
+    def __init__(self
+                ,arcpy2path=None
+                ,database='oracle'):
 
         self.sdeconn = os.environ['SDEFILE']
         
@@ -22,23 +23,28 @@ class Gdb(object):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
+        self.database = database
+
     def checkconnection(self):
 
-        sql = 'SELECT dummy from dual'
-        sdereturn = cx_sde.execute_immediate(self.sdeconn,
-                                             sql)
+        sdereturn = cx_sde.execute_immediate(self.sdeconn
+                                            ,self.fetchsql('dummysql.sql'))
 
         if len(sdereturn) == 1:
             return True
         else:
             return False
 
-    def fetchsql(self,
-                 whichsql):
+    def fetchsql(self
+                ,whichsql):
 
-        # fetch any sql from the library under the repo sql directory
+        # fetch any sql from the library under the repo sql_oracle directory
+        # highfalutin plans that some day we might have an sql_postgres directory
+        # and simply instantiating a gdb instance with database type 'postgres'
+        # switcheroos all sql here
+
         sqlfilepath = pathlib.Path(__file__).parent.parent \
-                                            .joinpath('sql') \
+                                            .joinpath('sql_{0}'.format(self.database)) \
                                             .joinpath(whichsql)
         
         with open(sqlfilepath, 'r') as sqlfile:
@@ -100,10 +106,12 @@ class Gdb(object):
         # corresponding to databases and one "sde.sde" per folder with sidecar keywords
         keywordfile = pathlib.Path(self.sdeconn).parent.joinpath('keyword.txt')
 
+        self.logger.info('exporting keywords to {0}'.format(keywordfile))
+
         arcpy.ExportGeodatabaseConfigurationKeywords_management(self.sdeconn,
                                                                 keywordfile)
 
-
+        self.logger.info('to change, update {0} then run arcpy.ImportGeodatabaseConfigurationKeywords_management'.format(keywordfile))
 
     def enable(self,
                authfile):
@@ -140,11 +148,10 @@ class Gdb(object):
 
         try:
 
-            arcpy.ExportGeodatabaseConfigurationKeywords_management(self.sdeconn,
-                                                                    keywordfile)
+            self.exportconfig()
 
         except:
         
             print (arcpy.GetMessages())
 
-        self.logger.info('update {0} then run arcpy.ImportGeodatabaseConfigurationKeywords_management '.format(keywordfile))
+        
