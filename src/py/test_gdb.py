@@ -35,11 +35,11 @@ class GdbTestCase(unittest.TestCase):
 
         self.assertTrue(self.geodatabase.checkmodules)
 
-    #def test_cexportconfig(self):
+    def test_cexportconfig(self):
 
-        # no way to test this until geodatabase created and have to run as sde
-        # dunno 
-        #self.geodatabase.exportconfig()
+        self.geodatabase.exportconfig()
+
+        self.assertTrue(os.path.isfile(os.path.join('{0}'.format(self.sdeconn,'keyword.txt')))) 
 
 
     

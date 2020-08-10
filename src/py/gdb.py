@@ -13,7 +13,7 @@ class Gdb(object):
                 ,arcpy2path=None
                 ,database='oracle'):
 
-        self.sdeconn = os.environ['SDEFILE']
+        self.sdeconn = os.path.normpath(os.environ['SDEFILE'])
         
         if arcpy2path is None:
             self.arcpy2path = 'C:\Python27\ArcGIS10.6\python.exe'
@@ -106,12 +106,10 @@ class Gdb(object):
         # corresponding to databases and one "sde.sde" per folder with sidecar keywords
         keywordfile = pathlib.Path(self.sdeconn).parent.joinpath('keyword.txt')
 
-        self.logger.info('exporting keywords to {0}'.format(keywordfile))
 
-        arcpy.ExportGeodatabaseConfigurationKeywords_management(self.sdeconn,
-                                                                keywordfile)
+        arcpy.ExportGeodatabaseConfigurationKeywords_management('{0}'.format(self.sdeconn),
+                                                                '{0}'.format(keywordfile))
 
-        self.logger.info('to change, update {0} then run arcpy.ImportGeodatabaseConfigurationKeywords_management'.format(keywordfile))
 
     def enable(self,
                authfile):
@@ -147,8 +145,10 @@ class Gdb(object):
         self.logger.info('exporting geodatabase configuration keywords to {0}'.format(keywordfile))
 
         try:
-
-            self.exportconfig()
+            
+            self.logger.info('exporting keywords to a file next to {0}'.format(self.sdeconn))
+            self.logger.info('update keywords then run arcpy.ImportGeodatabaseConfigurationKeywords_management')
+            self.exportconfig()            
 
         except:
         
