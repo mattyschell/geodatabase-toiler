@@ -23,12 +23,27 @@ class Gdb(object):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
+        # used only as fetch path to all SQLs we will execute
+        # for now src\sql_<oracle>
+        # life goals: src\sql_<postgres> switch and everything just works?
         self.database = database
+
+        self.administrator =  self.isadministrator()
+
+    def isadministrator(self):
+
+        sdereturn = cx_sde.selectavalue(self.sdeconn
+                                       ,self.fetchsql('{0}'.format('isadministrator.sql')))
+
+        if sdereturn == 1:
+            return True
+        else:
+            return False
 
     def checkconnection(self):
 
         sdereturn = cx_sde.execute_immediate(self.sdeconn
-                                            ,self.fetchsql('dummysql.sql'))
+                                            ,self.fetchsql('{0}'.format('dummysql.sql')))
 
         if len(sdereturn) == 1:
             return True

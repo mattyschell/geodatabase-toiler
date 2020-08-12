@@ -1,0 +1,1 @@
+select count(*) from user_users where username = 'SDE' 

@@ -84,4 +84,4 @@ def selectacolumn(sde,
 
     else:
 
-        raise ValueError('Unknown return type from ' + sql)
+        raise ValueError('Unknown return type from {0}'.format(sql))

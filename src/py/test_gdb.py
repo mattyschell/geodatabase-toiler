@@ -1,4 +1,3 @@
-
 import os
 import pathlib
 import unittest
@@ -21,7 +20,6 @@ class GdbTestCase(unittest.TestCase):
 
         pass
 
-
     def test_acheckconnection(self):
 
         #sql returns a single X
@@ -35,11 +33,23 @@ class GdbTestCase(unittest.TestCase):
 
         self.assertTrue(self.geodatabase.checkmodules)
 
-    def test_cexportconfig(self):
+    def test_cisadministrator(self):
 
-        self.geodatabase.exportconfig()
+        self.assertIsInstance(self.geodatabase.isadministrator()
+                             ,bool)
 
-        self.assertTrue(os.path.isfile(os.path.join('{0}'.format(self.sdeconn,'keyword.txt')))) 
+    def test_dexportconfig(self):
+
+        if self.geodatabase.isadministrator():
+
+            self.geodatabase.exportconfig()
+
+            self.assertTrue(os.path.isfile(os.path.join('{0}'.format(self.sdeconn,'keyword.txt')))) 
+
+        else:
+
+            # winning
+            self.assertTrue(True)
 
 
     
