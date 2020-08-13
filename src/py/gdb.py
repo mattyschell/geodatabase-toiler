@@ -126,6 +126,19 @@ class Gdb(object):
                                                                 '{0}'.format(keywordfile))
 
 
+    def config_gdb(self):
+
+        # https://desktop.arcgis.com/en/arcmap/10.7/manage-data/gdbs-in-oracle/configuration-keywords.htm
+        # just doing 1 val, risking it from sql
+        sdereturn = cx_sde.execute_immediate(self.sdeconn,
+                                             self.fetchsql('update_geometry_storage.sql'))
+
+        # https://desktop.arcgis.com/en/arcmap/10.7/manage-data/gdbs-in-oracle/update-open-cursors.htm
+        # similar going rogue
+        sdereturn = cx_sde.execute_immediate(self.sdeconn,
+                                             self.fetchsql('upsert_open_cursors.sql'))
+
+
     def enable(self,
                authfile):
 
@@ -168,5 +181,8 @@ class Gdb(object):
         except:
         
             print (arcpy.GetMessages())
+
+        self.logger.info('updating geodatabase configuration')
+        self.config_gdb()
 
         

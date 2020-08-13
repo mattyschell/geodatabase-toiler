@@ -161,7 +161,30 @@ class UtilsTestCase(unittest.TestCase):
         sdereturn = cx_sde.execute_immediate(self.sdeconn,
                                              sql)
 
+    def test_jdmlcommit(self): 
+
+
+        sql = 'create table test_cx_sde_foo as select * from dual'
+
+        sdereturn = cx_sde.execute_immediate(self.sdeconn,
+                                             sql)
+
+        sql = """update test_cx_sde_foo a set a.dummy = 'Z'"""
+
+        sdereturn = cx_sde.execute_immediate(self.sdeconn,
+                                             sql)
+
+        sql = """select count(*) from test_cx_sde_foo a where a.dummy = 'Z'"""
+
+        sdereturn = cx_sde.selectavalue(self.sdeconn,
+                                        sql)
     
+        self.assertEqual(sdereturn, 1)
+
+        sql = 'drop table test_cx_sde_foo'
+        sdereturn = cx_sde.execute_immediate(self.sdeconn,
+                                             sql)
+
 
 if __name__ == '__main__':
     unittest.main()
