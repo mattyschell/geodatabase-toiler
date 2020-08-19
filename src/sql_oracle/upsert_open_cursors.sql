@@ -2,6 +2,8 @@
 -- the sde.gdb_util.update_open_cursors expects SYSDBA access to run  dbms_utility.get_parameter_value
 -- then loops over any user_schema geodatabases to spray the value into all server_config tables
 -- we are simpletons here, just inserting the sql, gotta have select dictionary privs
+-- From an older reference - Therefore, an ArcMap application with 10 layers being 
+--                           edited in the document can potentially have 231 cursors open 
 merge into server_config dest
 using 
    (select upper(name) as prop_name
