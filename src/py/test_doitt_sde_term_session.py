@@ -1,10 +1,17 @@
 import unittest
 import os
+from subprocess import Popen
 
 import cx_sde
+import test_doitt_sde_term_session_sleeper
 
 # From Python 3 
 # CALL C:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_doitt_sde_term_session.py 
+# success looks like
+#   ----------------------------------------------------------------------
+#   Ran 8 tests in <forever>
+
+#   OK
 
 # Tests
 # A - Admin user schema can select from system table
@@ -22,11 +29,30 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(self):
 
+        # will need to manually hack these or externalize, TBD
         self.adminschema = os.path.normpath("T:\GIS\Internal\Connections\oracle19c\dev\CSCL-ditCSdv1\mschell_private\mschell.sde")
         self.appschema = os.path.normpath("T:\GIS\Internal\Connections\oracle19c\dev\CSCL-ditCSdv1\mschell_private\cscl_pub.sde")
+        
+        # could be same as one of the above if they have select dictionary privs
+        self.selectdictschema = os.path.normpath("T:\GIS\Internal\Connections\oracle19c\dev\CSCL-ditCSdv1\mschell_private\SDE.sde")
 
+        # these should be fixed
         self.systemtable = 'SYSTEM.DOITT_SDE_TERM_SESSION'
-        self.systemprocedure = 'SYSTEM.SP_DOITT_TERM_SDE_SESSION'
+        self.systemproceduresql = 'BEGIN SYSTEM.sp_doitt_term_sde_session(); END; '
+
+        # tuck away schema names for later use
+        sql = """select username from user_users"""
+        self.adminschemaname = cx_sde.selectavalue(self.adminschema
+                                                  ,sql)
+        self.appschemaname = cx_sde.selectavalue(self.appschema
+                                                ,sql)
+        self.selectdictschemaname = cx_sde.selectavalue(self.appschema
+                                                       ,sql)
+
+        # me or my brother 
+        sql = """select UPPER(sys_context('USERENV','OS_USER')) from dual"""
+        self.myosuser = cx_sde.selectavalue(self.adminschema
+                                           ,sql)
 
     @classmethod
     def tearDownClass(self):
@@ -68,8 +94,8 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
                                        ,testsql)
 
         self.assertEqual(sdereturn
-                         ,1
-                         ,'Cant insert into {0}'.format(self.systemtable)) 
+                        ,1
+                        ,'Cant insert into {0}'.format(self.systemtable)) 
 
         # B - Admin user schema can delete from system table
 
@@ -128,6 +154,84 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
 
         sdereturn = cx_sde.execute_immediate(self.adminschema
                                             ,sql)
+
+    def test_dinsert_duplicates(self):
+        
+        # D - Admin user schema cannot insert duplicate schema/os_user pair
+        sql = """insert into {0} (username, osuser) """ \
+              """select sys_context('USERENV','CURRENT_USER') """ \
+              """      ,sys_context('USERENV','OS_USER') """ \
+              """from dual """ \
+              """union all """ \
+              """select sys_context('USERENV','CURRENT_USER') """ \
+              """      ,sys_context('USERENV','OS_USER') """ \
+              """from dual """.format(self.systemtable)
+
+
+
+        # TODO: get this right some day
+        #self.assertRaises(ValueError,cx_sde.execute_immediate(self.adminschema
+        #                                                     ,sql))
+
+        sqlstatus = True
+        try:
+            sdereturn = cx_sde.execute_immediate(self.adminschema
+                                                ,sql)
+        except:
+            sqlstatus = False
+
+        self.assertFalse(sqlstatus,'Inserted duplicates into {0}'.format(self.systemtable))
+            
+
+    def test_ecantinsert_into_system_table(self):
+
+        # E - Non-admin schema cannot insert, update, delete from system table
+
+        sql = """insert into {0} (username, osuser) """ \
+              """select sys_context('USERENV','CURRENT_USER') """ \
+              """      ,sys_context('USERENV','OS_USER') """ \
+              """from dual """.format(self.systemtable)
+
+        sqlstatus = True
+        try:
+            sdereturn = cx_sde.execute_immediate(self.appschema
+                                                ,sql)
+        except:
+            sqlstatus = False
+
+        self.assertFalse(sqlstatus,'Non admin schema wrote to {0}'.format(self.systemtable))
+
+    def test_fterminate_appschema(self):
+
+        # F - Admin user can terminate a session from self os_user connected from an application schema
+
+        sql = """insert into {0} (username, osuser) """ \
+              """select '{1}' """ \
+              """      ,UPPER(sys_context('USERENV','OS_USER')) """ \
+              """from dual """.format(self.systemtable
+                                     ,self.appschemaname)
+
+        sdereturn = cx_sde.execute_immediate(self.adminschema
+                                            ,sql)
+
+        print('popening')
+
+        # fixed this path EOD Thur I think
+        # Test next, then make paths relative
+        Popen(["C:/Program Files/ArcGIS/Pro/bin/Python/scripts/propy.bat", "C:/matt_projects/geodatabase-toiler/src/py/pytest_doitt_sde_term_session_sleeper.py", self.appschema])
+        print('done popening')
+
+        # get count from v$ session using dictschema
+        # call systemproceduresql
+        # get count again, assert equal to 0
+        # delete record from system table
+        
+
+    
+    
+    # G - Admin user does not terminate a session from self os_user when specifying application schema and some other os_user  
+    # H - Admin user attempt to terminate own session and os_user does not succeed
+
 
 
 if __name__ == '__main__':
