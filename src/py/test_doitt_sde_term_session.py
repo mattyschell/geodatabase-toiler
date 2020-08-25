@@ -1,5 +1,6 @@
 import unittest
 import os
+import time
 from subprocess import Popen
 
 import cx_sde
@@ -32,13 +33,18 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
         # will need to manually hack these or externalize, TBD
         self.adminschema = os.path.normpath("T:\GIS\Internal\Connections\oracle19c\dev\CSCL-ditCSdv1\mschell_private\mschell.sde")
         self.appschema = os.path.normpath("T:\GIS\Internal\Connections\oracle19c\dev\CSCL-ditCSdv1\mschell_private\cscl_pub.sde")
-        
-        # could be same as one of the above if they have select dictionary privs
-        self.selectdictschema = os.path.normpath("T:\GIS\Internal\Connections\oracle19c\dev\CSCL-ditCSdv1\mschell_private\SDE.sde")
 
         # these should be fixed
         self.systemtable = 'SYSTEM.DOITT_SDE_TERM_SESSION'
         self.systemproceduresql = 'BEGIN SYSTEM.sp_doitt_term_sde_session(); END; '
+        self.systemsessionview = 'SYSTEM.V_DOITT_USER_SES_STATUS'
+
+        # when forking off to call a sleep timer in pl/sql
+        # we will let the new thread have a few seconds to import all of its
+        # bloated dependencies and for the system view to refresh
+        # this is obviously a terrible anti-pattern and I will regret this decision
+        # (sorry) 
+        self.fudgetime = 5
 
         # tuck away schema names for later use
         sql = """select username from user_users"""
@@ -46,10 +52,8 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
                                                   ,sql)
         self.appschemaname = cx_sde.selectavalue(self.appschema
                                                 ,sql)
-        self.selectdictschemaname = cx_sde.selectavalue(self.appschema
-                                                       ,sql)
 
-        # me or my brother 
+        # me or my brother MR
         sql = """select UPPER(sys_context('USERENV','OS_USER')) from dual"""
         self.myosuser = cx_sde.selectavalue(self.adminschema
                                            ,sql)
@@ -213,24 +217,161 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
 
         sdereturn = cx_sde.execute_immediate(self.adminschema
                                             ,sql)
-
-        print('popening')
-
-        # fixed this path EOD Thur I think
-        # Test next, then make paths relative
-        Popen(["C:/Program Files/ArcGIS/Pro/bin/Python/scripts/propy.bat", "C:/matt_projects/geodatabase-toiler/src/py/pytest_doitt_sde_term_session_sleeper.py", self.appschema])
-        print('done popening')
-
-        # get count from v$ session using dictschema
-        # call systemproceduresql
-        # get count again, assert equal to 0
-        # delete record from system table
         
+        # thats admin schema at the end -->
+        Popen(["C:/Progra~1/ArcGIS/Pro/bin/Python/scripts/propy.bat", "./src/py/test_doitt_sde_term_session_sleeper.py", self.appschema])
 
+        time.sleep(self.fudgetime)
+
+        # get count from doitt dba session view
+        sql = """select count(*) """ \
+              """from {0} """ \
+              """where """ \
+              """    UPPER(client_user) = UPPER(sys_context('USERENV','OS_USER')) """ \
+              """and UPPER(db_user) = '{1}' """.format(self.systemsessionview
+                                                ,self.appschemaname)
+        
+        sdereturn = cx_sde.selectavalue(self.adminschema
+                                       ,sql)
+
+        #print('got {0} sessions before'.format(sdereturn))
+        self.assertGreaterEqual(sdereturn
+                               ,1
+                               ,'Didnt get a session going from {0}'.format(self.appschemaname)) 
+
+        # call systemproceduresql
+        sdereturn = cx_sde.execute_immediate(self.adminschema
+                                            ,self.systemproceduresql)
+
+
+        # get count again, assert equal to 0
+        sdereturn = cx_sde.selectavalue(self.adminschema
+                                       ,sql)
+        #print('got {0} sessions after'.format(sdereturn))
+        
+        self.assertEqual(sdereturn
+                        ,0
+                        ,'Didnt kill sessions from {0}'.format(self.appschemaname)) 
+
+        sql = """delete from {0} """ \
+              """where """ \
+              """    UPPER(username) = '{1}' """ \
+              """and UPPER(osuser) = UPPER(sys_context('USERENV','OS_USER')) """.format(self.systemtable
+                                                                                       ,self.appschemaname)
+
+        sdereturn = cx_sde.execute_immediate(self.adminschema
+                                            ,sql)
+        
+    def test_gnoterminate_appschema(self):
     
+        # G - Admin user does not terminate a session from self os_user when specifying application schema and some other os_user
+
+        sql = """insert into {0} (username, osuser) """ \
+              """select '{1}' """ \
+              """      ,UPPER(sys_context('USERENV','OS_USER')) || 'XX' """ \
+              """from dual """.format(self.systemtable
+                                     ,self.appschemaname)
+
+        sdereturn = cx_sde.execute_immediate(self.adminschema
+                                            ,sql)
+
+        Popen(["C:/Progra~1/ArcGIS/Pro/bin/Python/scripts/propy.bat", "./src/py/test_doitt_sde_term_session_sleeper.py", self.appschema])
+
+        time.sleep(self.fudgetime)
+
+        # get count from doitt dba session view
+        sql = """select count(*) """ \
+              """from {0} """ \
+              """where """ \
+              """    UPPER(client_user) = UPPER(sys_context('USERENV','OS_USER')) """ \
+              """and UPPER(db_user) = '{1}' """.format(self.systemsessionview
+                                                      ,self.appschemaname)
+        
+        sdereturnb4 = cx_sde.selectavalue(self.adminschema
+                                         ,sql)
+
+        print('got {0} sessions before'.format(sdereturn))
+        self.assertGreaterEqual(sdereturnb4
+                               ,1
+                               ,'Didnt get a session going from {0}'.format(self.appschemaname)) 
+
+        # call systemproceduresql, should not kill appschema/osuser
+        sdereturn = cx_sde.execute_immediate(self.adminschema
+                                            ,self.systemproceduresql)
+
+
+        # get count again, assert equal to b4
+        sdereturn = cx_sde.selectavalue(self.adminschema
+                                       ,sql)
+        
+        self.assertEqual(sdereturn
+                        ,sdereturnb4
+                        ,'Should not have killed sessions from phony osuserXX and {0}'.format(self.adminschema)) 
+
+        sql = """delete from {0} """ \
+              """where """ \
+              """    UPPER(username) = '{1}' """ \
+              """and UPPER(osuser) = UPPER(sys_context('USERENV','OS_USER')) || 'XX' """.format(self.systemtable
+                                                                                               ,self.appschemaname)
+
+        sdereturn = cx_sde.execute_immediate(self.adminschema
+                                            ,sql)
+
+    def test_gnoterminate_own(self):
     
-    # G - Admin user does not terminate a session from self os_user when specifying application schema and some other os_user  
-    # H - Admin user attempt to terminate own session and os_user does not succeed
+        # H - Admin user attempt to terminate own session and os_user does not succeed
+
+        sql = """insert into {0} (username, osuser) """ \
+              """select '{1}' """ \
+              """      ,UPPER(sys_context('USERENV','OS_USER')) """ \
+              """from dual """.format(self.systemtable
+                                     ,self.adminschemaname)
+
+        sdereturn = cx_sde.execute_immediate(self.adminschema
+                                            ,sql)
+
+        Popen(["C:/Progra~1/ArcGIS/Pro/bin/Python/scripts/propy.bat", "./src/py/test_doitt_sde_term_session_sleeper.py", self.adminschema])
+
+        time.sleep(self.fudgetime)
+
+        # get count from doitt dba session view
+        sql = """select count(*) """ \
+              """from {0} """ \
+              """where """ \
+              """    UPPER(client_user) = UPPER(sys_context('USERENV','OS_USER')) """ \
+              """and UPPER(db_user) = '{1}' """.format(self.systemsessionview
+                                                      ,self.adminschemaname)
+        
+        sdereturnb4 = cx_sde.selectavalue(self.adminschema
+                                         ,sql)
+
+        print('got {0} sessions before'.format(sdereturn))
+        self.assertGreaterEqual(sdereturnb4
+                               ,1
+                               ,'Didnt get a session going from {0}'.format(self.adminschemaname)) 
+
+        # call systemproceduresql, should not kill adminschema/osuser
+        sdereturn = cx_sde.execute_immediate(self.adminschema
+                                            ,self.systemproceduresql)
+
+
+        # get count again, assert equal to b4
+        sdereturn = cx_sde.selectavalue(self.adminschema
+                                       ,sql)
+        print('got {0} sessions after'.format(sdereturn))
+        
+        self.assertEqual(sdereturn
+                        ,sdereturnb4
+                        ,'Should not have killed sessions from osuser and {0}'.format(self.adminschema)) 
+
+        sql = """delete from {0} """ \
+              """where """ \
+              """    UPPER(username) = '{1}' """ \
+              """and UPPER(osuser) = UPPER(sys_context('USERENV','OS_USER')) """.format(self.systemtable
+                                                                                       ,self.adminschemaname)
+
+        sdereturn = cx_sde.execute_immediate(self.adminschema
+                                            ,sql)
 
 
 
