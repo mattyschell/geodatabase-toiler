@@ -6,7 +6,7 @@ import sys
 import os
 import cx_sde
 
-sleeptimer=100
+sleeptimer=50
 
 def main(sdefile):
     

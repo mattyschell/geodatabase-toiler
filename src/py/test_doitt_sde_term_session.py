@@ -6,13 +6,13 @@ from subprocess import Popen
 import cx_sde
 import test_doitt_sde_term_session_sleeper
 
+# mschell! 20200826
+# Tests of DBA-supplied session terminator
+# We agreed to use this tool in lieue of ALTER SYSTEM privs required to kill 
+#    sessions as recommended by ESRI
+
 # From Python 3 
 # CALL C:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_doitt_sde_term_session.py 
-# success looks like
-#   ----------------------------------------------------------------------
-#   Ran 8 tests in <forever>
-
-#   OK
 
 # Tests
 # A - Admin user schema can select from system table
@@ -24,8 +24,24 @@ import test_doitt_sde_term_session_sleeper
 # G - Admin user does not terminate a session from self os_user when specifying application schema and some other os_user  
 # H - Admin user attempt to terminate own session and os_user does not succeed
 
+# successes are messy and look something like
+#c:\matt_projects\geodatabase-toiler>CALL C:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_doitt_sde_term_session.py
+#...sql fail on insert into SYSTEM.DOITT_SDE_TERM_SESSION (username, osuser) select sys_context('USERENV','CURRENT_USER')       ,sys_context('USERENV','OS_USER') from dual union all select sys_context('USERENV','CURRENT_USER')       ,sys_context('USERENV','OS_USER') from dual
+#.sql fail on insert into SYSTEM.DOITT_SDE_TERM_SESSION (username, osuser) select sys_context('USERENV','CURRENT_USER')       ,sys_context('USERENV','OS_USER') from dual
+#.C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\lib\subprocess.py:786: ResourceWarning: subprocess 290108 is still running
+#  ResourceWarning, source=self)
+#.C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\lib\subprocess.py:786: ResourceWarning: subprocess 285420 is still running
+#  ResourceWarning, source=self)
+#.C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\lib\subprocess.py:786: ResourceWarning: subprocess 290016 is still running
+#  ResourceWarning, source=self)
+#.
+#----------------------------------------------------------------------
+#Ran 8 tests in 48.376s
+
+#OK
 
 class DoittSdeTermSessionTestCase(unittest.TestCase):
+
 
     @classmethod
     def setUpClass(self):
@@ -58,10 +74,18 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
         self.myosuser = cx_sde.selectavalue(self.adminschema
                                            ,sql)
 
+
     @classmethod
     def tearDownClass(self):
 
-        pass
+        # goes badly on reruns if fails leave detritus for my os_user in here
+        sql = """delete from {0} """ \
+              """where """ \
+              """    UPPER(osuser) = UPPER(sys_context('USERENV','OS_USER')) """.format(self.systemtable)
+
+        sdereturn = cx_sde.execute_immediate(self.adminschema
+                                            ,sql)
+
 
     def test_aselect_from_system_table(self):
 
@@ -75,7 +99,6 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
         self.assertGreaterEqual(sdereturn
                                ,0
                                ,'Cant select from {0}'.format(self.systemtable)) 
-
 
     def test_binsert_into_system_table(self):
 
@@ -171,8 +194,6 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
               """      ,sys_context('USERENV','OS_USER') """ \
               """from dual """.format(self.systemtable)
 
-
-
         # TODO: get this right some day
         #self.assertRaises(ValueError,cx_sde.execute_immediate(self.adminschema
         #                                                     ,sql))
@@ -186,7 +207,6 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
 
         self.assertFalse(sqlstatus,'Inserted duplicates into {0}'.format(self.systemtable))
             
-
     def test_ecantinsert_into_system_table(self):
 
         # E - Non-admin schema cannot insert, update, delete from system table
@@ -218,7 +238,6 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
         sdereturn = cx_sde.execute_immediate(self.adminschema
                                             ,sql)
         
-        # thats admin schema at the end -->
         Popen(["C:/Progra~1/ArcGIS/Pro/bin/Python/scripts/propy.bat", "./src/py/test_doitt_sde_term_session_sleeper.py", self.appschema])
 
         time.sleep(self.fudgetime)
@@ -290,7 +309,7 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
         sdereturnb4 = cx_sde.selectavalue(self.adminschema
                                          ,sql)
 
-        print('got {0} sessions before'.format(sdereturn))
+        #print('got {0} sessions before'.format(sdereturn))
         self.assertGreaterEqual(sdereturnb4
                                ,1
                                ,'Didnt get a session going from {0}'.format(self.appschemaname)) 
@@ -298,7 +317,6 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
         # call systemproceduresql, should not kill appschema/osuser
         sdereturn = cx_sde.execute_immediate(self.adminschema
                                             ,self.systemproceduresql)
-
 
         # get count again, assert equal to b4
         sdereturn = cx_sde.selectavalue(self.adminschema
@@ -317,7 +335,7 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
         sdereturn = cx_sde.execute_immediate(self.adminschema
                                             ,sql)
 
-    def test_gnoterminate_own(self):
+    def test_hnoterminate_own(self):
     
         # H - Admin user attempt to terminate own session and os_user does not succeed
 
@@ -335,34 +353,36 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
         time.sleep(self.fudgetime)
 
         # get count from doitt dba session view
+        # these exact numbers are tricky, the sleep timer in Oracle seems to
+        # producee an active and an inactive thread, so count 2
+        # plus there is this here session making the call, so 3, maybe?
         sql = """select count(*) """ \
               """from {0} """ \
               """where """ \
               """    UPPER(client_user) = UPPER(sys_context('USERENV','OS_USER')) """ \
               """and UPPER(db_user) = '{1}' """.format(self.systemsessionview
                                                       ,self.adminschemaname)
-        
+
         sdereturnb4 = cx_sde.selectavalue(self.adminschema
                                          ,sql)
 
-        print('got {0} sessions before'.format(sdereturn))
+        #print('got {0} sessions before'.format(sdereturnb4))
         self.assertGreaterEqual(sdereturnb4
-                               ,1
+                               ,2
                                ,'Didnt get a session going from {0}'.format(self.adminschemaname)) 
 
         # call systemproceduresql, should not kill adminschema/osuser
         sdereturn = cx_sde.execute_immediate(self.adminschema
                                             ,self.systemproceduresql)
 
-
-        # get count again, assert equal to b4
+        # get count again
         sdereturn = cx_sde.selectavalue(self.adminschema
                                        ,sql)
-        print('got {0} sessions after'.format(sdereturn))
+        # print('got {0} sessions after'.format(sdereturn))
         
-        self.assertEqual(sdereturn
-                        ,sdereturnb4
-                        ,'Should not have killed sessions from osuser and {0}'.format(self.adminschema)) 
+        self.assertGreaterEqual(sdereturn
+                               ,2
+                               ,'Should not have killed sessions from osuser and {0}'.format(self.adminschema)) 
 
         sql = """delete from {0} """ \
               """where """ \
@@ -372,7 +392,6 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
 
         sdereturn = cx_sde.execute_immediate(self.adminschema
                                             ,sql)
-
 
 
 if __name__ == '__main__':
