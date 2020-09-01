@@ -38,9 +38,15 @@ class GdbTestCase(unittest.TestCase):
         self.assertIsInstance(self.geodatabase.isadministrator()
                              ,bool)
 
-    def test_dexportconfig(self):
+    def test_disadministratoractive(self):
 
-        if self.geodatabase.isadministrator():
+        self.assertIsInstance(self.geodatabase.isadministratoractive()
+                             ,bool)
+
+    def test_eexportconfig(self):
+
+        if  self.geodatabase.isadministrator() \
+        and self.geodatabase.isadministratoractive():
 
             self.geodatabase.exportconfig()
 
@@ -51,7 +57,30 @@ class GdbTestCase(unittest.TestCase):
             # winning
             self.assertTrue(True)
 
+    def test_fspoolsql(self):
 
+        if self.geodatabase.isadministrator():
+
+            # only admin user is gonna have privileges to select dictionary views
+            # in any expected future
+
+            self.geodatabase.spoolsql('start')
+
+            self.geodatabase.spoolsql('stop')
+
+            sdereturn = cx_sde.selectavalue(self.sdeconn
+                                           ,'select count(*) from spoolsdesql')
+
+            self.assertGreaterEqual(sdereturn
+                                   ,0)
+
+            sdereturn = cx_sde.execute_immediate(self.sdeconn
+                                                ,'drop table spoolsdesql')
+
+        else:
+
+            # winning
+            self.assertTrue(True)
     
 
 if __name__ == '__main__':

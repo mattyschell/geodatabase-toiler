@@ -18,10 +18,11 @@ https://desktop.arcgis.com/en/arcmap/10.7/manage-data/gdbs-in-oracle/overview-ge
 
 ## Test Repo Code Written For The Toilin'
 
-To run all tests execute as the SDE geodatabase administrator in a dev environment.
+To guarantee all tests run execute as the "SDE" geodatabase administrator in a 
+dev environment.
 
 ```bat
-> set SDEFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\mschell.sde
+> set SDEFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\SDE.sde
 > testall.bat
 ```
 

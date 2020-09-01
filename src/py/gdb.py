@@ -2,6 +2,7 @@ import arcpy
 import os
 import pathlib
 import logging
+import configparser
 from subprocess import call
 
 import cx_sde
@@ -12,7 +13,7 @@ class Gdb(object):
     def __init__(self
                 ,arcpy2path=None
                 ,database='oracle'):
-
+            
         self.sdeconn = os.path.normpath(os.environ['SDEFILE'])
         
         if arcpy2path is None:
@@ -34,6 +35,19 @@ class Gdb(object):
 
         sdereturn = cx_sde.selectavalue(self.sdeconn
                                        ,self.fetchsql('{0}'.format('isadministrator.sql')))
+
+        if sdereturn == 1:
+            return True
+        else:
+            return False
+    
+    def isadministratoractive(self):
+        
+        try:
+            sdereturn = cx_sde.selectavalue(self.sdeconn
+                                           ,self.fetchsql('{0}'.format('isadministratoractive.sql')))
+        except:
+            return False
 
         if sdereturn == 1:
             return True
@@ -66,6 +80,12 @@ class Gdb(object):
             sql = sqlfile.read() 
 
         return sql 
+
+    def spoolsql(self
+                ,startorstop='start'):
+
+        sdereturn = cx_sde.execute_immediate(self.sdeconn,
+                                             self.fetchsql('spool_sql_{0}.sql'.format(startorstop)))        
 
     def checkgdbadminprivs(self):
 
