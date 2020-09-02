@@ -35,7 +35,7 @@ class GdbTestCase(unittest.TestCase):
 
     def test_cisadministrator(self):
 
-        self.assertIsInstance(self.geodatabase.isadministrator()
+        self.assertIsInstance(self.geodatabase.administrator
                              ,bool)
 
     def test_disadministratoractive(self):
@@ -45,7 +45,7 @@ class GdbTestCase(unittest.TestCase):
 
     def test_eexportconfig(self):
 
-        if  self.geodatabase.isadministrator() \
+        if  self.geodatabase.administrator \
         and self.geodatabase.isadministratoractive():
 
             self.geodatabase.exportconfig()
@@ -59,7 +59,7 @@ class GdbTestCase(unittest.TestCase):
 
     def test_fspoolsql(self):
 
-        if self.geodatabase.isadministrator():
+        if self.geodatabase.administrator:
 
             # only admin user is gonna have privileges to select dictionary views
             # in any expected future

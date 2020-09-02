@@ -16,17 +16,21 @@ class Gdb(object):
             
         self.sdeconn = os.path.normpath(os.environ['SDEFILE'])
         
+        # in case we need to call oldskool python 27 under arcgis
         if arcpy2path is None:
-            self.arcpy2path = 'C:\Python27\ArcGIS10.6\python.exe'
+            self.arcpy2path = os.path.join(os.path.normpath('C:\Python27\ArcGIS10.6')
+                                          ,'python.exe')
         else:
-            self.arcpy2path = arcpy2path
+            self.arcpy2path = os.path.join(os.path.normpath(arcpy2path)
+                                          ,'python.exe')
 
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
         # used only as fetch path to all SQLs we will execute
         # for now src\sql_<oracle>
-        # life goals: src\sql_<postgres> switch and everything just works?
+        # life goals: src\sql_<postgres> switch and life is beautiful
+        # really tho I do too much in SQL, should RTFM, convert SQLs to arcpy 
         self.database = database
 
         self.administrator =  self.isadministrator()

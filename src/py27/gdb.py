@@ -1,4 +1,4 @@
-# C:\Python27\ArcGIS10.6
+# C:\Python27\ArcGIS10.7
 # we wish to install the GDB from ArcGIS, not bleeding edge ArcPro
 
 import arcpy

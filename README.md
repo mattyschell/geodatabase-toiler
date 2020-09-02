@@ -33,10 +33,13 @@ A big bloated wrapper to arcpy.EnableEnterpriseGeodatabase_management.
 ```bat
 > set SDEFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\mschell.sde
 > set AUTHFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\keycodes
+> set ARCPY2PATH=C:\Python27\ArcGIS10.7
 > enablegdb.bat
 ```
 
 1. Checks required privileges
-2. Shells out to ArcMap python 2.7 for geodatabase creation.  Allows us to control the version (ex 10.7.1)
-3. Replaces keywords so we will use native database geometries instead of ESRI ransomware 
+2. Spools SQL to a table so we can snoop on ESRI and debug errors
+3. Shells out to ArcMap's python 2.7 for geodatabase creation.  Allows control over the version (ex 10.7.1)
+4. Updates database keywords so we will default to native database geometries instead of ESRI ransomware 
+
 
