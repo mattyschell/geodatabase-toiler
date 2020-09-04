@@ -129,7 +129,7 @@ class Gdb(object):
         self.logger.info('checking sde geodatabase privileges from {0}'.format(self.sdeconn))
 
         sdereturn = cx_sde.selectacolumn(self.sdeconn,
-                                         self.fetchsql('privileges_gdb_upgrade.sql'))
+                                         self.fetchsql('privileges_gdb_creation.sql'))
 
         if len(sdereturn) > 0:
             for issue in sdereturn:
@@ -182,6 +182,7 @@ class Gdb(object):
                 self.logger.info('attempting to enable geodatabase from py27 using {0}'.format(callcmd))
                 
                 exit_code = call(callcmd)
+                #exit_code = 0
                 # looks like this
                 #arcpy.EnableEnterpriseGeodatabase_management(self.sdeconn, 
                 #                                             authfile)
@@ -193,9 +194,8 @@ class Gdb(object):
         else:
 
             self.logger.error('missing requirements to enable a geodatabase from {0}'.format(self.sdeconn))             
-
-        self.logger.info('exporting geodatabase configuration keywords to {0}'.format(keywordfile))
-
+            raise ValueError('missing requirements to enable a geodatabase from {0}'.format(self.sdeconn))
+            
         try:
             
             self.logger.info('exporting keywords to a file next to {0}'.format(self.sdeconn))
