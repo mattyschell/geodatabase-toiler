@@ -18,5 +18,9 @@ arcpy2path = os.environ['ARCPY2PATH']
 # initialize with optional py27 path
 babygdb = gdb.Gdb(arcpy2path)
 
+babygdb.spoolsql('start')
+
 #enable using this keycodes file
 babygdb.enable(authfile)
+
+babygdb.spoolsql('stop')
