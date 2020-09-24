@@ -1,6 +1,5 @@
 -- https://desktop.arcgis.com/en/arcmap/10.7/manage-data/gdbs-in-oracle/privileges-oracle.htm
--- "Minimum privileges" are mostly available via the DB_APP_PROFILE
-CREATE USER "SDE" IDENTIFIED BY iluvoracle247 DEFAULT TABLESPACE "SDE_DATA" TEMPORARY TABLESPACE "TEMP" PROFILE "DB_APP_PROFILE";
+CREATE USER "SDE" IDENTIFIED BY **** DEFAULT TABLESPACE "SDE" TEMPORARY TABLESPACE "TEMP" PROFILE "DB_APP_PROFILE";
 -- "You must grant the execute privilege on these packages to the public role to create or upgrade the geodatabase" 
 GRANT EXECUTE ON dbms_pipe TO public;
 GRANT EXECUTE ON dbms_lock TO public;
@@ -9,8 +8,14 @@ GRANT EXECUTE ON dbms_utility TO public;
 GRANT EXECUTE ON dbms_sql TO public;
 GRANT EXECUTE ON utl_raw TO public;
 -- "Privileges required for geodatabase creation or upgrade"
--- Again DB_APP_PROFILE covers most except...
+--  DB_APP_PROFILE only governs password policies and the like...
+GRANT CREATE PROCEDURE TO "SDE";
+GRANT CREATE SEQUENCE TO "SDE";
+GRANT CREATE TABLE TO "SDE";
+GRANT CREATE TRIGGER TO "SDE";
+GRANT CREATE TYPE TO "SDE";
 GRANT CREATE VIEW TO "SDE";
+GRANT CREATE SYNONYM TO "SDE";
 GRANT EXECUTE ON DBMS_CRYPTO to "SDE";
 GRANT CREATE INDEXTYPE to "SDE";
 GRANT CREATE LIBRARY to "SDE";
@@ -22,5 +27,50 @@ GRANT ADMINISTER DATABASE TRIGGER to "SDE";
 -- optional, carried over from 11g.  Used to debug issues with geodatabase-issued SQL
 GRANT SELECT ANY DICTIONARY to "SDE";
 --
--- verify, connect as SDE
--- @../privileges_gdb_creation.sql
+-- verify connect as SDE
+--
+--select missing from (
+--        select
+--            REGEXP_SUBSTR('GRANT EXECUTE ON SYS.DBMS_PIPE TO PUBLIC,GRANT EXECUTE ON SYS.DBMS_LOCK TO PUBLIC,GRANT EXECUTE ON SYS.DBMS_LOB TO PUBLIC,GRANT EXECUTE ON SYS.DBMS_UTILITY TO PUBLIC,GRANT EXECUTE ON SYS.DBMS_SQL TO PUBLIC,GRANT EXECUTE ON SYS.UTL_RAW TO PUBLIC', '[^,]+', 1, LEVEL) AS missing
+--        from
+--            dual
+--        connect by
+--            REGEXP_SUBSTR('GRANT EXECUTE ON SYS.DBMS_PIPE TO PUBLIC,GRANT EXECUTE ON SYS.DBMS_LOCK TO PUBLIC,GRANT EXECUTE ON SYS.DBMS_LOB TO PUBLIC,GRANT EXECUTE ON SYS.DBMS_UTILITY TO PUBLIC,GRANT EXECUTE ON SYS.DBMS_SQL TO PUBLIC,GRANT EXECUTE ON SYS.UTL_RAW TO PUBLIC', '[^,]+', 1, LEVEL) IS NOT NULL
+--        minus
+--        select 
+--            'GRANT EXECUTE ON SYS.' || table_name || ' TO PUBLIC'
+--        from 
+--            all_tab_privs
+--        where 
+--            table_schema = 'SYS' 
+--        and table_name IN ('DBMS_LOB','DBMS_LOCK','DBMS_PIPE','DBMS_UTILITY','DBMS_SQL','UTL_RAW')
+--        and grantee = 'PUBLIC'
+--    union
+--        select regexp_substr('CREATE PROCEDURE,CREATE SEQUENCE,CREATE SESSION,CREATE TABLE,CREATE TRIGGER,CREATE INDEXTYPE,CREATE LIBRARY,CREATE OPERATOR,CREATE PUBLIC SYNONYM,CREATE TYPE,CREATE VIEW,DROP PUBLIC SYNONYM,ADMINISTER DATABASE TRIGGER','[^,]+', 1, level) as missing
+--            from dual
+--        connect by regexp_substr('CREATE PROCEDURE,CREATE SEQUENCE,CREATE SESSION,CREATE TABLE,CREATE TRIGGER,CREATE INDEXTYPE,CREATE LIBRARY,CREATE OPERATOR,CREATE PUBLIC SYNONYM,CREATE TYPE,CREATE VIEW,DROP PUBLIC SYNONYM,ADMINISTER DATABASE TRIGGER', '[^,]+', 1, level) is not null
+--        minus 
+--       (
+--        select privilege 
+--        from 
+--            user_sys_privs
+--        union
+--        select r.privilege
+--        from
+--            user_role_privs u
+--        join
+--            role_sys_privs r
+--        on 
+--            u.granted_role = r.role)
+--   union 
+--        select 'GRANT EXECUTE ON SYS.DBMS_CRYPTO TO ' || user from dual
+--        minus
+--        select 
+--            'GRANT EXECUTE ON SYS.' || table_name || ' TO ' || user
+--        from 
+--            all_tab_privs
+--        where 
+--            table_schema = 'SYS' 
+--        and table_name IN ('DBMS_CRYPTO')
+--        and grantee = user
+--) order by missing;

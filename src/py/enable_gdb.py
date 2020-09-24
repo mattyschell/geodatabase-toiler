@@ -21,6 +21,12 @@ babygdb = gdb.Gdb(arcpy2path)
 babygdb.spoolsql('start')
 
 #enable using this keycodes file
-babygdb.enable(authfile)
+try:
+    babygdb.enable(authfile)
+    exitcode = 0
+except:
+    exitcode = 1
+finally:
+    babygdb.spoolsql('stop')
 
-babygdb.spoolsql('stop')
+exit(exitcode)
