@@ -145,10 +145,11 @@ class Gdb(object):
         # corresponding to databases and one "sde.sde" per folder with sidecar keywords
         keywordfile = pathlib.Path(self.sdeconn).parent.joinpath('keyword.txt')
 
+        #keywordfile = "T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\keyword2.txt"
+
 
         arcpy.ExportGeodatabaseConfigurationKeywords_management('{0}'.format(self.sdeconn),
                                                                 '{0}'.format(keywordfile))
-
 
     def config_gdb(self):
 
@@ -209,4 +210,13 @@ class Gdb(object):
         self.logger.info('updating geodatabase configuration')
         self.config_gdb()
 
-        
+    def importfeatureclass(self
+                          ,sourcefc
+                          ,targetfcname)
+                  
+        # caller to manage locks, delete if exists, etc
+        # sourcefc is the hard part, full path like
+        # C:\matt_projects\database_utils\arcgisconnections\bldg@giscmnt.sde\BLDG.BUILDING
+        arcpy.FeatureClassToFeatureClass_conversion(sourcefc
+                                                   ,self.sdeconn
+                                                   ,targetfcname)        
