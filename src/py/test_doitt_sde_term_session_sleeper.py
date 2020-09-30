@@ -10,6 +10,7 @@ sleeptimer=50
 
 def main(sdefile):
     
+    #11g DBMS_LOCK.sleep
     sql = """begin """ \
           """   sys.DBMS_SESSION.sleep({0}); """ \
           """end; """.format(sleeptimer)

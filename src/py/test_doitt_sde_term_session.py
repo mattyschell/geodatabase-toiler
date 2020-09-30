@@ -74,14 +74,13 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
         self.myosuser = cx_sde.selectavalue(self.adminschema
                                            ,sql)
 
-
     @classmethod
     def tearDownClass(self):
 
         # goes badly on reruns if fails leave detritus for my os_user in here
         sql = """delete from {0} """ \
               """where """ \
-              """    UPPER(osuser) = UPPER(sys_context('USERENV','OS_USER')) """.format(self.systemtable)
+              """    UPPER(osuser) LIKE UPPER(sys_context('USERENV','OS_USER')) || '%' """.format(self.systemtable)
 
         sdereturn = cx_sde.execute_immediate(self.adminschema
                                             ,sql)
