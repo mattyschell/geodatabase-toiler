@@ -4,7 +4,7 @@ import pathlib
 import logging
 import configparser
 from subprocess import call
-
+#
 import cx_sde
 
 
@@ -15,8 +15,19 @@ class Gdb(object):
                 ,database='oracle'):
             
         self.sdeconn = os.path.normpath(os.environ['SDEFILE'])
+
+        #https://pro.arcgis.com/en/pro-app/arcpy/functions/workspace-properties.htm
+        desc = arcpy.Describe(self.sdeconn)
+       
+        connProps = desc.connectionProperties
+        self.username = connProps.user.upper()
+
+        # database property doesnt exist? This mess is our best option
+        # strong SQL Server vibes from these props
+        # dbsde:oracle11g:DITGSDV1
+        self.databasestring = connProps.instance 
         
-        # in case we need to call oldskool python 27 under arcgis
+        # when we need to call oldskool python 27 under arcgis
         if arcpy2path is None:
             self.arcpy2path = os.path.join(os.path.normpath('C:\Python27\ArcGIS10.6')
                                           ,'python.exe')
@@ -212,10 +223,12 @@ class Gdb(object):
 
     def importfeatureclass(self
                           ,sourcefc
-                          ,targetfcname)
-                  
-        # caller to manage locks, delete if exists, etc
-        # sourcefc is the hard part, full path like
+                          ,targetfcname):
+
+        # I like this formulation I am writing code for gdbs, and gdbs import fcs
+        #    (avoid thinking of this as a "copy" or an ETL)
+        # caller to manage locks, delete if exists, etc, via the fc class
+        # sourcefc is the hard part, any ESRI-approved will work like
         # C:\matt_projects\database_utils\arcgisconnections\bldg@giscmnt.sde\BLDG.BUILDING
         arcpy.FeatureClassToFeatureClass_conversion(sourcefc
                                                    ,self.sdeconn
