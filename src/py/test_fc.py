@@ -22,7 +22,10 @@ class FcTestCase(unittest.TestCase):
 
         self.testfc = fc.Fc(self.testgdb
                            ,'TOILERTESTFC')     
-   
+
+        #get some non-oracle managed user on the DB to work with
+        self.dummyuser = cx_sde.selectavalue(self.testgdb.sdeconn
+                                            ,self.testgdb.fetchsql('dummyuser.sql'))
 
     @classmethod
     def tearDownClass(self):
@@ -58,7 +61,17 @@ class FcTestCase(unittest.TestCase):
         self.assertTrue('CREATED_DATE' in self.testfc.getfields() and \
                         'CREATED_USER' in self.testfc.getfields() and \
                         'LAST_EDITED_USER' in self.testfc.getfields() and \
-                        'LAST_EDITED_DATE' in self.testfc.getfields() )            
+                        'LAST_EDITED_DATE' in self.testfc.getfields() )     
+
+    def test_egrantprivileges(self):       
+
+        self.testfc.grantprivileges(self.dummyuser
+                                   ,'GRANT')
+
+        privskount = cx_sde.selectavalue(self.testgdb.sdeconn
+                                        ,self.testgdb.fetchsql('dummyuserprivcount.sql'))
+
+        self.assertEqual(privskount, 4)
 
 
 if __name__ == '__main__':
