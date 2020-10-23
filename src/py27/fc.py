@@ -25,6 +25,8 @@ class Fc(object):
 
     def createversionedviews(self):
 
+        # https://desktop.arcgis.com/en/arcmap/10.6/tools/data-management-toolbox/create-versioned-view.htm
+
         self.logger.info('Py27 is Creating versioned views for {0}'.format(self.name)) 
 
         arcpy.CreateVersionedView_management(self.featureclass)

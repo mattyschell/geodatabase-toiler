@@ -46,13 +46,12 @@ class FcTestCase(unittest.TestCase):
         #TODO get versioning with bug workaround to work with the test here
 
         self.testfc.version()
-        pass
 
         # careful, just for testing
-        #self.testfc_evw = fc.Fc(self.testgdb
-        #                       ,'TOILERTESTFC_EVW')
+        self.testfc_evw = fc.Fc(self.testgdb
+                               ,'TOILERTESTFC_EVW')
     
-        #self.assertTrue(self.testfc_evw.exists())    
+        self.assertTrue(self.testfc_evw.exists())    
 
     def test_dtrackedits(self):
 
@@ -68,10 +67,20 @@ class FcTestCase(unittest.TestCase):
         self.testfc.grantprivileges(self.dummyuser
                                    ,'GRANT')
 
-        privskount = cx_sde.selectavalue(self.testgdb.sdeconn
-                                        ,self.testgdb.fetchsql('dummyuserprivcount.sql'))
+        self.assertEqual(cx_sde.selectavalue(self.testgdb.sdeconn
+                                            ,self.testgdb.fetchsql('dummyuserprivcount.sql'))
+                        ,4)
 
-        self.assertEqual(privskount, 4)
+    def test_eindex(self):
+
+        self.testfc.index('BIN')
+
+        idxkount = cx_sde.selectavalue(self.testgdb.sdeconn
+                                      ,self.testgdb.fetchsql('dummyindexcount.sql'))
+
+        self.assertEqual(cx_sde.selectavalue(self.testgdb.sdeconn
+                                            ,self.testgdb.fetchsql('dummyindexcount.sql'))
+                        ,1)
 
 
 if __name__ == '__main__':

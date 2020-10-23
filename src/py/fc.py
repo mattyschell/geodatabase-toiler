@@ -1,8 +1,9 @@
 import arcpy
 import logging
 import pathlib
-from subprocess import call
-#
+#from subprocess import call
+import subprocess
+
 import gdb
 import cx_sde
 
@@ -69,28 +70,33 @@ class Fc(object):
         # and registers the data as versioned, the versioned view is not created
         # for the associated table or feature class.
 
-        #py2versionedviews = pathlib.Path(__file__).parent.parent \
-        #                                          .joinpath('py27') \
-        #                                          .joinpath('create_versionedviews.py')
+        # I cant get this shell out to python27 to work
+        # so like I dummy I'm gonna print it to the screen for now
+        # the test will fail until I (or esri) get it right, thats honest at least
+
+        py2versionedviews = pathlib.Path(__file__).parent.parent \
+                                                  .joinpath('py27') \
+                                                  .joinpath('create_versionedviews.py')
             
         # see gdb class for this path, perhaps 'C:\Python27\ArcGIS10.6'
-        #callcmd =  f"{self.gdb.arcpy2path} {py2versionedviews} {self.name} " 
-        #callcmd = r'{0} {1} {2}'.format(self.gdb.arcpy2path, py2versionedviews, self.name)
+        callcmd = r'{0} {1} {2}'.format(self.gdb.arcpy2path, py2versionedviews, self.name)
+        self.logger.info('YOU MUST CREATE versioned views from py27 using {0}'.format(callcmd))
+        self.logger.info('YOU YES YOU MUST call this: {0}'.format(callcmd))
 
-        #try:
-                
-            #self.logger.info('attempting to create versioned views from py27 using {0}'.format(callcmd))
+        # From a script run a postprocess something like:
+        # C:\Python27\ArcGIS10.6\python.exe C:\matt_projects\geodatabase-toiler\src\py27\create_versionedviews.py TOILERTESTFC
+            
+        # exit_code = subprocess.call(callcmd,shell=True)
+        # exit_code = subprocess.run([self.gdb.arcpy2path, 'C:\matt_projects\geodatabase-toiler\src\py27\create_versionedviews.py'])
+        # subprocess.Popen(["virtualenv1/bin/python", "my_script.py"])
 
-            #C:\Python27\ArcGIS10.6\python.exe C:\matt_projects\geodatabase-toiler\src\py27\create_versionedviews.py TOILERTESTFC
-                
-        #    exit_code = call(callcmd)
+        # attempts above yield
+        #  File "C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\Lib\site.py", line 177
+        #file=sys.stderr)
+        #    ^
+        # SyntaxError: invalid syntax
 
-            #self.logger.info('exit code is {0}'.format(exit_code))
 
-        #except:
-
-        #    self.logger.error('failure creating versioned views with {0}'.format(callcmd))    
-        #    raise ValueError(f"failure creating versioned views with {callcmd}") 
         
     def trackedits(self):
 
