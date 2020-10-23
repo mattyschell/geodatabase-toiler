@@ -10,8 +10,7 @@ import fc
 # C:\matt_projects\geodatabase-toiler>set SDEFILE=T:\GIS\Internal\Connections\oracle19c\dev\bldg.sde
 # no arcpy2path environmental, we are already being called from the oldskool py27\python.exe
 
-#fcname = sys.argv[1]
-fcname = 'TOILERTESTFC'
+fcname = sys.argv[1]
 
 gdb27 = gdb.Gdb()
 
