@@ -163,7 +163,6 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_jdmlcommit(self): 
 
-
         sql = 'create table test_cx_sde_foo as select * from dual'
 
         sdereturn = cx_sde.execute_immediate(self.sdeconn,

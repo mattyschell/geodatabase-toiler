@@ -149,3 +149,9 @@ class Fc(object):
                                  ,'{0}{1}{2}'.format(self.name 
                                                     ,column
                                                     ,'IX'))
+
+    def analyze(self
+               ,components='BUSINESS,FEATURE,ADDS,DELETE'):
+
+        arcpy.Analyze_management(self.featureclass
+                                ,components) 
