@@ -151,7 +151,15 @@ class Fc(object):
                                                     ,'IX'))
 
     def analyze(self
-               ,components='BUSINESS,FEATURE,ADDS,DELETE'):
+               ,components=['BUSINESS','ADDS','DELETES']):
 
         arcpy.Analyze_management(self.featureclass
                                 ,components) 
+
+    def enablearchiving(self):
+
+        desc = arcpy.Describe(self.featureclass)
+        
+        if desc.IsArchived == False: 
+            arcpy.EnableArchiving_management(self.featureclass)
+
