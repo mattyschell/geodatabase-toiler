@@ -1,6 +1,7 @@
 import os
 import pathlib
 import unittest
+import glob
 
 import cx_sde
 import gdb
@@ -15,7 +16,8 @@ class FcTestCase(unittest.TestCase):
         self.sdeconn = os.environ['SDEFILE']
         self.testgdb = gdb.Gdb()
         # c:\matt_projects\geodatabase-toiler\src\py\testdata\testdata.gpkg\main.BUILDING
-        self.srctestfc = os.getcwd() + r'\src\py\testdata\testdata.gpkg\main.BUILDING'
+        self.srctestfcdir = os.getcwd() + r'\\src\\py\\testdata\\'
+        self.srctestfc = self.srctestfcdir + r'testdata.gpkg\main.BUILDING'
 
         self.testgdb.importfeatureclass(self.srctestfc
                                        ,'TOILERTESTFC')
@@ -32,6 +34,12 @@ class FcTestCase(unittest.TestCase):
 
         #pass
         self.testfc.delete()
+
+        dummyfiles = glob.glob(os.path.join(self.srctestfcdir
+                                           ,'dummy.*'))
+
+        for dummyfile in dummyfiles:
+             os.remove(dummyfile)
 
     def test_aexists(self):
 
@@ -71,7 +79,7 @@ class FcTestCase(unittest.TestCase):
                                             ,self.testgdb.fetchsql('dummyuserprivcount.sql'))
                         ,4)
 
-    def test_eindex(self):
+    def test_findex(self):
 
         self.testfc.index('BIN')
 
@@ -81,6 +89,26 @@ class FcTestCase(unittest.TestCase):
         self.assertEqual(cx_sde.selectavalue(self.testgdb.sdeconn
                                             ,self.testgdb.fetchsql('dummyindexcount.sql'))
                         ,1)
+
+    def test_gexporttoshp(self):
+
+        self.testfc.exporttoshp(self.srctestfcdir
+                               ,'dummy.shp')
+
+        self.assertTrue(os.path.exists(os.path.join(self.srctestfcdir
+                                                   ,'dummy.shp')))
+
+        self.assertTrue(os.path.exists(os.path.join(self.srctestfcdir
+                                                   ,'dummy.dbf')))
+
+        self.assertTrue(os.path.exists(os.path.join(self.srctestfcdir
+                                                   ,'dummy.prj')))
+        
+        self.assertTrue(os.path.exists(os.path.join(self.srctestfcdir
+                                                   ,'dummy.shx')))
+
+        self.assertTrue(os.path.exists(os.path.join(self.srctestfcdir
+                                                   ,'dummy.cpg')))
 
 
 if __name__ == '__main__':

@@ -163,3 +163,11 @@ class Fc(object):
         if desc.IsArchived == False: 
             arcpy.EnableArchiving_management(self.featureclass)
 
+    def exporttoshp(self
+                   ,outputdir
+                   ,outputname):
+
+        arcpy.FeatureClassToFeatureClass_conversion(self.featureclass
+                                                   ,outputdir
+                                                   ,outputname)
+
