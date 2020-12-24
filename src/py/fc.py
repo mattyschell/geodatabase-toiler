@@ -42,6 +42,14 @@ class Fc(object):
 
         self.logger.info('deleting {0}'.format(self.name)) 
 
+        desc = arcpy.Describe(self.featureclass)
+        
+        if desc.IsArchived == True:
+
+            # disable archving and axe the _H table
+            arcpy.DisableArchiving_management(self.featureclass,
+                                              'DELETE') 
+
         arcpy.Delete_management(self.featureclass)
 
     def locksexist(self):
@@ -167,7 +175,15 @@ class Fc(object):
                    ,outputdir
                    ,outputname):
 
+        # print('fc2fc {0} {1} {2}'.format(self.featureclass, outputdir, outputname))
+        
         arcpy.FeatureClassToFeatureClass_conversion(self.featureclass
                                                    ,outputdir
                                                    ,outputname)
+
+    # TODO exportogeopackage if ESRI ever fills in some functionality in
+    # https://pro.arcgis.com/en/pro-app/latest/tool-reference/conversion/an-overview-of-the-to-geopackage-toolset.htm
+
+    # TODO exportogeojson if ESRI tool does something other than error 99999
+                
 
