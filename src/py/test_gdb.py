@@ -82,6 +82,12 @@ class GdbTestCase(unittest.TestCase):
             # winning
             self.assertTrue(True)
     
+    def test_gcompress(self):
+
+        output = self.geodatabase.compress()
+
+        self.assertGreaterEqual(output, 0)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -233,3 +233,22 @@ class Gdb(object):
         arcpy.FeatureClassToFeatureClass_conversion(sourcefc
                                                    ,self.sdeconn
                                                    ,targetfcname)        
+
+    def compress(self):
+
+        states_removed = 0
+
+        if self.isadministrator():
+
+            resobject = arcpy.Compress_management(self.sdeconn)
+
+            output = resobject.getMessages()
+
+            if 'succeeded' in output:
+
+                states_removed = cx_sde.selectavalue(self.sdeconn
+                                                    ,self.fetchsql('{0}'.format('get_compress_states.sql')))
+        
+        return states_removed
+
+        
