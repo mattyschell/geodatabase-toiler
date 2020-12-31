@@ -63,7 +63,7 @@ class FcTestCase(unittest.TestCase):
 
     def test_dtrackedits(self):
 
-        self.testfc.trackedits()
+        self.assertEqual(self.testfc.trackedits(), 0)
 
         self.assertTrue('CREATED_DATE' in self.testfc.getfields() and \
                         'CREATED_USER' in self.testfc.getfields() and \
@@ -72,8 +72,9 @@ class FcTestCase(unittest.TestCase):
 
     def test_egrantprivileges(self):       
 
-        self.testfc.grantprivileges(self.dummyuser
-                                   ,'GRANT')
+        self.assertEqual(self.testfc.grantprivileges(self.dummyuser
+                                                    ,'GRANT')
+                        ,0)
 
         self.assertEqual(cx_sde.selectavalue(self.testgdb.sdeconn
                                             ,self.testgdb.fetchsql('dummyuserprivcount.sql'))
@@ -109,6 +110,17 @@ class FcTestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(os.path.join(self.srctestfcdir
                                                    ,'dummy.cpg')))
+
+
+    def test_hrebuildindexes(self):
+
+        self.testfc.version()
+
+        self.assertEqual(self.testfc.rebuildindexes(), 0)
+
+    def test_ianalyze(self):
+
+        self.assertEqual(self.testfc.analyze(), 0)
 
 
 if __name__ == '__main__':

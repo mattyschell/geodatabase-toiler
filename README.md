@@ -16,7 +16,7 @@ https://desktop.arcgis.com/en/arcmap/10.7/manage-data/gdbs-in-oracle/overview-ge
 3. An .sde file that connects to the geodatabase (externalize as %SDEFILE%)
 
 
-## Test Repo Code Written For The Toilin'
+## Regression Test Code Written For The Toilin'
 
 To guarantee all tests run execute as the "SDE" geodatabase administrator in a 
 dev environment. 

@@ -46,6 +46,20 @@ class Gdb(object):
 
         self.administrator =  self.isadministrator()
 
+    def interpret(self
+                     ,resobject):
+
+        # could also work with resobject.status 
+        output = 0
+
+        if 'succeeded' not in resobject.getMessages().lower():
+
+            output = 1
+            self.logger.warn('response code is {0}'.format(resobject.status))
+            self.logger.warn('response messages are {0}'.format(resobject.getMessages()))
+
+        return output
+
     def isadministrator(self):
 
         sdereturn = cx_sde.selectavalue(self.sdeconn
@@ -221,6 +235,34 @@ class Gdb(object):
         self.logger.info('updating geodatabase configuration')
         self.config_gdb()
 
+    def compress(self):
+
+        states_removed = 0
+
+        if self.isadministrator():
+
+            if self.interpret(arcpy.Compress_management(self.sdeconn)) == 0:
+
+                states_removed = cx_sde.selectavalue(self.sdeconn
+                                                    ,self.fetchsql('{0}'.format('get_compress_states.sql')))
+        
+        return states_removed
+
+    def rebuildindexes(self):
+
+        # https://pro.arcgis.com/en/pro-app/latest/help/data/geodatabases/manage-oracle/rebuild-system-table-indexes.htm
+
+        output = 0
+
+        if self.isadministrator():
+
+            return self.interpret(arcpy.RebuildIndexes_management(self.sdeconn
+                                                                 ,'SYSTEM'
+                                                                 , ''
+                                                                 ,'ALL'))
+
+        return output
+
     def importfeatureclass(self
                           ,sourcefc
                           ,targetfcname):
@@ -234,21 +276,6 @@ class Gdb(object):
                                                    ,self.sdeconn
                                                    ,targetfcname)        
 
-    def compress(self):
 
-        states_removed = 0
-
-        if self.isadministrator():
-
-            resobject = arcpy.Compress_management(self.sdeconn)
-
-            output = resobject.getMessages()
-
-            if 'succeeded' in output:
-
-                states_removed = cx_sde.selectavalue(self.sdeconn
-                                                    ,self.fetchsql('{0}'.format('get_compress_states.sql')))
-        
-        return states_removed
-
+                                    
         

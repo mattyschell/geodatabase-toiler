@@ -84,9 +84,13 @@ class GdbTestCase(unittest.TestCase):
     
     def test_gcompress(self):
 
-        output = self.geodatabase.compress()
+        states_removed = self.geodatabase.compress()
 
-        self.assertGreaterEqual(output, 0)
+        self.assertGreaterEqual(states_removed, 0)
+
+    def test_hrebuildindexes(self):
+
+        self.assertEqual(self.geodatabase.rebuildindexes(), 0)
 
 
 if __name__ == '__main__':

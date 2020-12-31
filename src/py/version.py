@@ -71,8 +71,8 @@ class Version(object):
         output = resobject.getMessages()
 
         if resobject.status != 4 \
-        or 'Warning' in output  \
-        or 'Error' in output: 
+        or 'warning' in output.lower()  \
+        or 'error' in output.lower(): 
             raise ValueError("reconcileandpost of {0} failed, see {1}".format(self.versionname
                                                                              ,output))
 

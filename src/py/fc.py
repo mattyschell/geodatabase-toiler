@@ -19,7 +19,7 @@ class Fc(object):
         self.name = name.upper()
         # esri tools usually expect this C:/sdefiles/bldg.sde/BUILDING
         # also acceptable: C:/sdefiles/bldg.sde/BLDG.BUILDING
-        self.featureclass = gdb.sdeconn + "/" + self.name
+        self.featureclass = self.gdb.sdeconn + "/" + self.name
 
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -63,6 +63,20 @@ class Fc(object):
 
             return True
 
+    def interpret(self
+                 ,resobject):
+
+        # could also work with resobject.status 
+        output = 0
+
+        if 'succeeded' not in resobject.getMessages().lower():
+
+            output = 1
+            self.logger.warn('response code is {0}'.format(resobject.status))
+            self.logger.warn('response messages are {0}'.format(resobject.getMessages()))
+
+        return output
+
     def version(self):
 
         # https://pro.arcgis.com/en/pro-app/tool-reference/data-management/register-as-versioned.htm
@@ -104,8 +118,6 @@ class Fc(object):
         #    ^
         # SyntaxError: invalid syntax
 
-
-        
     def trackedits(self):
 
         # https://pro.arcgis.com/en/pro-app/tool-reference/data-management/enable-editor-tracking.htm
@@ -115,13 +127,13 @@ class Fc(object):
 
         self.logger.info('enabling editor tracking on {0}'.format(self.name)) 
 
-        arcpy.EnableEditorTracking_management(self.featureclass,
-                                              "CREATED_USER",
-                                              "CREATED_DATE",
-                                              "LAST_EDITED_USER",
-                                              "LAST_EDITED_DATE",
-                                              "NO_ADD_FIELDS",
-                                              "UTC")
+        return self.interpret(arcpy.EnableEditorTracking_management(self.featureclass
+                                                                   ,'CREATED_USER'
+                                                                   ,'CREATED_DATE'
+                                                                   ,'LAST_EDITED_USER'
+                                                                   ,'LAST_EDITED_DATE'
+                                                                   ,'NO_ADD_FIELDS'
+                                                                   ,'UTC'))
 
     def grantprivileges(self
                        ,user
@@ -136,10 +148,10 @@ class Fc(object):
         self.logger.info('granting privileges on {0} to {1}'.format(self.name
                                                                    ,user))    
 
-        arcpy.ChangePrivileges_management(self.featureclass 
-                                         ,user
-                                         ,"GRANT" 
-                                         ,edits)  
+        return self.interpret(arcpy.ChangePrivileges_management(self.featureclass 
+                                                               ,user
+                                                               ,'GRANT'
+                                                               ,edits))  
 
     def index(self
              ,column):
@@ -152,24 +164,35 @@ class Fc(object):
 
         # BUILDINGBINIX 
         # BUILDING_HISTORICDOITT_IDIX = 27 careful friend
-        arcpy.AddIndex_management(self.featureclass
-                                 ,column
-                                 ,'{0}{1}{2}'.format(self.name 
-                                                    ,column
-                                                    ,'IX'))
+        return self.interpret(arcpy.AddIndex_management(self.featureclass
+                                                       ,column
+                                                       ,'{0}{1}{2}'.format(self.name 
+                                                                          ,column
+                                                                          ,'IX')))
 
     def analyze(self
                ,components=['BUSINESS','ADDS','DELETES']):
 
-        arcpy.Analyze_management(self.featureclass
-                                ,components) 
+        return self.interpret(arcpy.Analyze_management(self.featureclass
+                                                      ,components))
+
+    def rebuildindexes(self):
+
+        # https://pro.arcgis.com/en/pro-app/latest/tool-reference/data-management/rebuild-indexes.htm
+
+        return self.interpret(arcpy.RebuildIndexes_management(self.gdb.sdeconn
+                                                             ,'NO_SYSTEM'
+                                                             ,self.name
+                                                             ,'ALL'))
 
     def enablearchiving(self):
 
         desc = arcpy.Describe(self.featureclass)
         
         if desc.IsArchived == False: 
-            arcpy.EnableArchiving_management(self.featureclass)
+            return self.interpret(arcpy.EnableArchiving_management(self.featureclass))
+        else:
+            return 0
 
     def exporttoshp(self
                    ,outputdir
@@ -184,6 +207,8 @@ class Fc(object):
     # TODO exportogeopackage if ESRI ever fills in some functionality in
     # https://pro.arcgis.com/en/pro-app/latest/tool-reference/conversion/an-overview-of-the-to-geopackage-toolset.htm
 
-    # TODO exportogeojson if ESRI tool does something other than error 99999
-                
+    # TODO exportogeojson if ESRI tool does something other than error 99999 (guess: sdo_geometry not supported)
+    # For now export to shp, then ogr2ogr to other formats.  Classic
+
+
 
