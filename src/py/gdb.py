@@ -13,7 +13,7 @@ class Gdb(object):
     def __init__(self
                 ,arcpy2path=None
                 ,database='oracle'):
-            
+
         self.sdeconn = os.path.normpath(os.environ['SDEFILE'])
 
         #https://pro.arcgis.com/en/pro-app/arcpy/functions/workspace-properties.htm
@@ -35,9 +35,6 @@ class Gdb(object):
             self.arcpy2path = os.path.join(os.path.normpath(arcpy2path)
                                           ,'python.exe')
 
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
-
         # used only as fetch path to all SQLs we will execute
         # for now src\sql_<oracle>
         # life goals: src\sql_<postgres> switch and life is beautiful
@@ -55,8 +52,8 @@ class Gdb(object):
         if 'succeeded' not in resobject.getMessages().lower():
 
             output = 1
-            self.logger.warn('response code is {0}'.format(resobject.status))
-            self.logger.warn('response messages are {0}'.format(resobject.getMessages()))
+            logging.warn('response code is {0}'.format(resobject.status))
+            logging.warn('response messages are {0}'.format(resobject.getMessages()))
 
         return output
 
@@ -120,7 +117,7 @@ class Gdb(object):
 
         #this one is a big old SQL that returns values
 
-        self.logger.info('checking sde geodatabase admin privs using {0}'.format(self.sdeconn))
+        logging.info('checking sde geodatabase admin privs using {0}'.format(self.sdeconn))
 
         sdereturn = cx_sde.selectacolumn(self.sdeconn,
                                          self.fetchsql('privileges_gdb_admin.sql'))
@@ -134,13 +131,13 @@ class Gdb(object):
 
     def checkmodules(self):
 
-        self.logger.info('checking database modules required for an Enterprise Geodatabase')
+        logging.info('checking database modules required for an Enterprise Geodatabase')
 
         try:
             sdereturn = cx_sde.execute_immediate(self.sdeconn,
                                                  self.fetchsql('gdb_requirements.sql'))
         except:
-            self.logger.error('modules issues reported')
+            logging.error('modules issues reported')
             #RAE from anonymous pl/sql block, probably a dumb pattern here
             #self.logger.error('sql returns: %s', sdereturn)
             return False
@@ -151,14 +148,14 @@ class Gdb(object):
 
         # this one is a big old SQL that returns values
 
-        self.logger.info('checking sde geodatabase privileges from {0}'.format(self.sdeconn))
+        logging.info('checking sde geodatabase privileges from {0}'.format(self.sdeconn))
 
         sdereturn = cx_sde.selectacolumn(self.sdeconn,
                                          self.fetchsql('privileges_gdb_creation.sql'))
 
         if len(sdereturn) > 0:
             for issue in sdereturn:
-                self.logger.error('{0}'.format(issue))
+                logging.error('{0}'.format(issue))
             return False
         else:
             return True   
@@ -212,27 +209,27 @@ class Gdb(object):
                 # looks like this
                 #arcpy.EnableEnterpriseGeodatabase_management(self.sdeconn, 
                 #                                             authfile)
-                self.logger.info('exit code is {0}'.format(exit_code))
+                logging.info('exit code is {0}'.format(exit_code))
             except:
-                self.logger.error('failure calling ArcGIS enable gdb with {0}'.format(callcmd))    
+                logging.error('failure calling ArcGIS enable gdb with {0}'.format(callcmd))    
                 raise ValueError(f"failure calling ArcGIS enable gdb with {callcmd}") 
 
         else:
 
-            self.logger.error('missing requirements to enable a geodatabase from {0}'.format(self.sdeconn))             
+            logging.error('missing requirements to enable a geodatabase from {0}'.format(self.sdeconn))             
             raise ValueError('missing requirements to enable a geodatabase from {0}'.format(self.sdeconn))
             
         try:
             
-            self.logger.info('exporting keywords to a file next to {0}'.format(self.sdeconn))
-            self.logger.info('update keywords then run arcpy.ImportGeodatabaseConfigurationKeywords_management')
+            logging.info('exporting keywords to a file next to {0}'.format(self.sdeconn))
+            logging.info('update keywords then run arcpy.ImportGeodatabaseConfigurationKeywords_management')
             self.exportconfig()            
 
         except:
         
             print (arcpy.GetMessages())
 
-        self.logger.info('updating geodatabase configuration')
+        logging.info('updating geodatabase configuration')
         self.config_gdb()
 
     def compress(self):

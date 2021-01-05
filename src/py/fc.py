@@ -1,7 +1,6 @@
 import arcpy
 import logging
 import pathlib
-#from subprocess import call
 import subprocess
 
 import gdb
@@ -21,9 +20,6 @@ class Fc(object):
         # also acceptable: C:/sdefiles/bldg.sde/BLDG.BUILDING
         self.featureclass = self.gdb.sdeconn + "/" + self.name
 
-        logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
-
     def getfields(self):
 
         desc = arcpy.Describe(self.featureclass)
@@ -40,7 +36,7 @@ class Fc(object):
 
     def delete(self):
 
-        self.logger.info('deleting {0}'.format(self.name)) 
+        logging.info('deleting {0}'.format(self.name)) 
 
         desc = arcpy.Describe(self.featureclass)
         
@@ -72,8 +68,8 @@ class Fc(object):
         if 'succeeded' not in resobject.getMessages().lower():
 
             output = 1
-            self.logger.warn('response code is {0}'.format(resobject.status))
-            self.logger.warn('response messages are {0}'.format(resobject.getMessages()))
+            logging.warn('response code is {0}'.format(resobject.status))
+            logging.warn('response messages are {0}'.format(resobject.getMessages()))
 
         return output
 
@@ -81,7 +77,7 @@ class Fc(object):
 
         # https://pro.arcgis.com/en/pro-app/tool-reference/data-management/register-as-versioned.htm
 
-        self.logger.info('versioning {0}'.format(self.name)) 
+        logging.info('versioning {0}'.format(self.name)) 
 
         arcpy.RegisterAsVersioned_management(self.featureclass
                                             ,"NO_EDITS_TO_BASE")
@@ -102,8 +98,8 @@ class Fc(object):
             
         # see gdb class for this path, perhaps 'C:\Python27\ArcGIS10.6'
         callcmd = r'{0} {1} {2}'.format(self.gdb.arcpy2path, py2versionedviews, self.name)
-        self.logger.info('YOU MUST CREATE versioned views from py27 using {0}'.format(callcmd))
-        self.logger.info('YOU YES YOU MUST call this: {0}'.format(callcmd))
+        logging.info('YOU MUST CREATE versioned views from py27 using {0}'.format(callcmd))
+        logging.info('YOU YES YOU MUST call this: {0}'.format(callcmd))
 
         # From a script run a postprocess something like:
         # C:\Python27\ArcGIS10.6\python.exe C:\matt_projects\geodatabase-toiler\src\py27\create_versionedviews.py TOILERTESTFC
@@ -125,7 +121,7 @@ class Fc(object):
         # I am gonna fix the field names here.  Reminder that our goal is to 
         # be opinionated and consistent across anything we manage 
 
-        self.logger.info('enabling editor tracking on {0}'.format(self.name)) 
+        logging.info('enabling editor tracking on {0}'.format(self.name)) 
 
         return self.interpret(arcpy.EnableEditorTracking_management(self.featureclass
                                                                    ,'CREATED_USER'
@@ -145,8 +141,8 @@ class Fc(object):
         # always grant select, edits are GRANT or AS_IS for grant select only
         # The nobs and dials on this tool are confounding
         
-        self.logger.info('granting privileges on {0} to {1}'.format(self.name
-                                                                   ,user))    
+        logging.info('granting privileges on {0} to {1}'.format(self.name
+                                                               ,user))    
 
         return self.interpret(arcpy.ChangePrivileges_management(self.featureclass 
                                                                ,user
@@ -159,8 +155,8 @@ class Fc(object):
         # https://pro.arcgis.com/en/pro-app/tool-reference/data-management/add-attribute-index.htm          
         # unique indexes cant be specified for multiversioned tables   
         
-        self.logger.info('indexing column {0} on {1}'.format(column
-                                                            ,self.name))      
+        logging.info('indexing column {0} on {1}'.format(column
+                                                        ,self.name))      
 
         # BUILDINGBINIX 
         # BUILDING_HISTORICDOITT_IDIX = 27 careful friend
