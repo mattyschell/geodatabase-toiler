@@ -10,8 +10,8 @@ import gdb
 
 if __name__ == "__main__":
 
-    if len(sys.argv) != 4:
-        raise ValueError('Expected 3 inputs, notifyonsuccess flag, emailsto, emailfrom')
+    if len(sys.argv) != 3:
+        raise ValueError('Expected 2 inputs, notifyonsuccess flag, emailsto')
 
     notifyonsuccess = sys.argv[1]
     ptoemails       = sys.argv[2]
