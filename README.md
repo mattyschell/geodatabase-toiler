@@ -22,7 +22,7 @@ To guarantee all tests run execute as the "SDE" geodatabase administrator in a
 dev environment. 
 
 ```bat
-> set SDEFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\bldg.sde
+> set SDEFILE=XX:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\bldg.sde
 > testall.bat
 ```
 
@@ -31,8 +31,8 @@ dev environment.
 A big bloated wrapper to arcpy.EnableEnterpriseGeodatabase_management. 
 
 ```bat
-> set SDEFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\mschell.sde
-> set AUTHFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\keycodes
+> set SDEFILE=XX:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\mschell.sde
+> set AUTHFILE=XX:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\keycodes
 > set ARCPY2PATH=C:\Python27\ArcGIS10.7
 > enablegdb.bat
 ```

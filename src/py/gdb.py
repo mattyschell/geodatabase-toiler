@@ -167,7 +167,7 @@ class Gdb(object):
         # corresponding to databases and one "sde.sde" per folder with sidecar keywords
         keywordfile = pathlib.Path(self.sdeconn).parent.joinpath('keyword.txt')
 
-        #keywordfile = "T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\keyword2.txt"
+        #keywordfile = "XX:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\keyword2.txt"
 
 
         arcpy.ExportGeodatabaseConfigurationKeywords_management('{0}'.format(self.sdeconn),

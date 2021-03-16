@@ -4,8 +4,8 @@ import os
 
 import gdb
 
-# C:\matt_projects\geodatabase-toiler>set SDEFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\mschell.sde
-# C:\matt_projects\geodatabase-toiler>set AUTHFILE=T:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\keycodes
+# C:\matt_projects\geodatabase-toiler>set SDEFILE=XX:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\mschell.sde
+# C:\matt_projects\geodatabase-toiler>set AUTHFILE=XX:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\keycodes
 # C:\matt_projects\geodatabase-toiler>set ARCPY2PATH=C:\Python27\ArcGIS10.7
 # C:\matt_projects\geodatabase-toiler\enablegdb.bat 
 # calls this!
