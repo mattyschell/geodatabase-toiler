@@ -3,6 +3,7 @@ import smtplib
 import datetime
 import logging
 import socket
+import os
 from email.message import EmailMessage
 
 import gdb
@@ -14,7 +15,8 @@ if __name__ == "__main__":
 
     notifyonsuccess = sys.argv[1]
     ptoemails       = sys.argv[2]
-    pfromemail      = sys.argv[3]
+    emailfrom       = os.environ['NOTIFYFROM']
+    smtpfrom        = os.environ['SMTPFROM']
 
     gdb2test = gdb.Gdb()
     msg = EmailMessage()
@@ -39,11 +41,11 @@ if __name__ == "__main__":
     logger.info(content)
 
     msg.set_content(content)
-    msg['From'] = ptoemails
+    msg['From'] = emailfrom
     msg['To'] = ptoemails
 
     if (not success or notifyonsuccess == 'Y'):
-        s = smtplib.SMTP('doittsmtp.nycnet')
+        s = smtplib.SMTP(smtpfrom)
         s.send_message(msg)
         s.quit()
 
