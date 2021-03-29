@@ -166,12 +166,12 @@ class UtilsTestCase(unittest.TestCase):
         sql = 'create table test_cx_sde_foo as select * from dual'
 
         sdereturn = cx_sde.execute_immediate(self.sdeconn,
-                                             sql)
+                                            sql)
 
         sql = """update test_cx_sde_foo a set a.dummy = 'Z'"""
 
         sdereturn = cx_sde.execute_immediate(self.sdeconn,
-                                             sql)
+                                            sql)
 
         sql = """select count(*) from test_cx_sde_foo a where a.dummy = 'Z'"""
 
@@ -181,6 +181,31 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(sdereturn, 1)
 
         sql = 'drop table test_cx_sde_foo'
+        sdereturn = cx_sde.execute_immediate(self.sdeconn,
+                                            sql)
+
+    def test_kexecutestatements(self): 
+
+        sql = 'create table test_cx_sde_foo2 as select * from dual'
+
+        sdereturn = cx_sde.execute_immediate(self.sdeconn,
+                                             sql)
+        sqls = []
+        sqls.append("""insert into test_cx_sde_foo2 values('A') """)
+        sqls.append("""insert into test_cx_sde_foo2 values('B') """)
+        sqls.append("""insert into test_cx_sde_foo2 values('C') """)
+        
+        sdereturn = cx_sde.execute_statements(self.sdeconn,
+                                              sqls)
+
+        sql = """select count(*) from test_cx_sde_foo2 """
+
+        sdereturn = cx_sde.selectavalue(self.sdeconn,
+                                        sql)
+    
+        self.assertEqual(sdereturn, 4)
+
+        sql = 'drop table test_cx_sde_foo2 '
         sdereturn = cx_sde.execute_immediate(self.sdeconn,
                                              sql)
 

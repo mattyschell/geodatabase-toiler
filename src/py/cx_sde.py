@@ -25,6 +25,17 @@ def execute_immediate(sde,
     del sde_conn
     return sde_return
 
+def execute_statements(sde
+                      ,sqls):
+
+    sde_conn = arcpy.ArcSDESQLExecute(sde)
+    sde_conn.startTransaction()
+
+    for sql in sqls:
+        sde_conn.execute(sql)
+
+    sde_conn.commitTransaction()
+
 
 def selectavalue(sde,
                  sql):
