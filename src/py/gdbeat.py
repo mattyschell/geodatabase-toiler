@@ -18,7 +18,6 @@ if __name__ == "__main__":
     emailfrom       = os.environ['NOTIFYFROM']
     smtpfrom        = os.environ['SMTPFROM']
 
-    gdb2test = gdb.Gdb()
     msg = EmailMessage()
 
     logging.basicConfig(level=logging.INFO)
@@ -26,13 +25,24 @@ if __name__ == "__main__":
 
     success = False
 
-    if not gdb2test.checkconnection(): 
-        content =  'ESRI geodatabase on {0} is unreachable '.format(gdb2test.databasestring)
-        msg['Subject'] = 'Unreachable ESRI Geodatabase'
-    else:
-        success = True
+    try:
+
+        # failures will be in initialization 
+        gdb2test = gdb.Gdb()
+    
+        if not gdb2test.checkconnection(): 
+            success = False
+        else:
+            success = True    
+    except:
+        success = False
+
+    if success:
         content = 'ESRI geodatabase on {0} is reachable '.format(gdb2test.databasestring)    
         msg['Subject'] = 'Reachable ESRI Geodatabase'
+    else:
+        content =  'ESRI geodatabase on {0} is unreachable '.format(gdb2test.databasestring)
+        msg['Subject'] = 'Unreachable ESRI Geodatabase'
 
     content += 'at {0} '.format(datetime.datetime.now())
     content += 'attempting to connect from {0} '.format(socket.gethostname())

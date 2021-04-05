@@ -12,20 +12,33 @@ class GdbTestCase(unittest.TestCase):
     def setUpClass(self):
 
         self.sdeconn = os.environ['SDEFILE']
-        self.geodatabase = gdb.Gdb()
-        
+        self.geodatabase = gdb.Gdb() 
 
     @classmethod
     def tearDownClass(self):
 
         pass
 
+    def test_aainit(self):
+
+        initsucceeded = True
+
+        try:
+            os.environ['SDEFILE'] = 'C:/Temp/badsde.sde'
+            self.badgeodatabase = gdb.Gdb()
+            initsucceeded = True
+        except:
+            initsucceeded = False
+        finally:
+            os.environ['SDEFILE'] = self.sdeconn
+
+        self.assertFalse(initsucceeded)
+
     def test_acheckconnection(self):
 
-        #sql returns a single X
+        # sql returns a single X
 
         self.assertTrue(self.geodatabase.checkconnection)
-    
     
     def test_bcheckmodules(self):
 

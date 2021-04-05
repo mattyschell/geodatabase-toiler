@@ -44,7 +44,7 @@ class Gdb(object):
         self.administrator =  self.isadministrator()
 
     def interpret(self
-                     ,resobject):
+                 ,resobject):
 
         # could also work with resobject.status 
         output = 0
@@ -82,13 +82,17 @@ class Gdb(object):
 
     def checkconnection(self):
 
-        sdereturn = cx_sde.execute_immediate(self.sdeconn
-                                            ,self.fetchsql('{0}'.format('dummysql.sql')))
+        check = False
 
-        if len(sdereturn) == 1:
-            return True
-        else:
-            return False
+        try:
+            sdereturn = cx_sde.selectavalue(self.sdeconn
+                                           ,self.fetchsql('{0}'.format('dummysql.sql')))
+            if len(sdereturn) == 1:
+                check = True
+        except:
+            check = False
+
+        return check
 
     def fetchsql(self
                 ,whichsql):
