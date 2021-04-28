@@ -47,8 +47,8 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
     def setUpClass(self):
 
         # will need to manually hack these or externalize, TBD
-        self.adminschema = os.path.normpath("T:\GIS\Internal\Connections\oracle19c\dev\CSCL-ditCSdv1\mschell_private\mschell.sde")
-        self.appschema = os.path.normpath("T:\GIS\Internal\Connections\oracle19c\dev\CSCL-ditCSdv1\mschell_private\cscl_pub.sde")
+        self.adminschema = os.path.normpath("C:\gis\connections\oracle19c\stg\CSCL-ditCSsg1\mschell_private\mschell.sde")
+        self.appschema = os.path.normpath("C:\gis\connections\oracle19c\stg\CSCL-ditCSsg1\cscl_pub.sde")
 
         # these should be fixed
         self.systemtable = 'SYSTEM.DOITT_SDE_TERM_SESSION'
@@ -60,7 +60,7 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
         # bloated dependencies and for the system view to refresh
         # this is obviously a terrible anti-pattern and I will regret this decision
         # (sorry) 
-        self.fudgetime = 5
+        self.fudgetime = 10
 
         # tuck away schema names for later use
         sql = """select username from user_users"""
@@ -246,26 +246,40 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
               """from {0} """ \
               """where """ \
               """    UPPER(client_user) = UPPER(sys_context('USERENV','OS_USER')) """ \
-              """and UPPER(db_user) = '{1}' """.format(self.systemsessionview
-                                                ,self.appschemaname)
+              """and UPPER(db_user) = '{1}' """ \
+              """and UPPER(status) IN ('ACTIVE','INACTIVE')""".format(self.systemsessionview
+                                                                     ,self.appschemaname)
         
         sdereturn = cx_sde.selectavalue(self.adminschema
                                        ,sql)
 
+        #print('+++++++++++++++++++++++')
         #print('got {0} sessions before'.format(sdereturn))
+        #print('+++++++++++++++++++++++')
         self.assertGreaterEqual(sdereturn
                                ,1
                                ,'Didnt get a session going from {0}'.format(self.appschemaname)) 
 
+        
+        #time.sleep(self.fudgetime)
         # call systemproceduresql
         sdereturn = cx_sde.execute_immediate(self.adminschema
                                             ,self.systemproceduresql)
 
 
+
         # get count again, assert equal to 0
         sdereturn = cx_sde.selectavalue(self.adminschema
                                        ,sql)
-        #print('got {0} sessions after'.format(sdereturn))
+
+        print('+++++++++++++++++++++++')
+        print('got {0} sessions after'.format(sdereturn))
+        print(sql)
+        print('+++++++++++++++++++++++')
+
+        time.sleep(self.fudgetime)
+        time.sleep(self.fudgetime)
+
         
         self.assertEqual(sdereturn
                         ,0
@@ -302,8 +316,9 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
               """from {0} """ \
               """where """ \
               """    UPPER(client_user) = UPPER(sys_context('USERENV','OS_USER')) """ \
-              """and UPPER(db_user) = '{1}' """.format(self.systemsessionview
-                                                      ,self.appschemaname)
+              """and UPPER(db_user) = '{1}' """ \
+              """and UPPER(status) IN ('ACTIVE','INACTIVE')""".format(self.systemsessionview
+                                                                     ,self.appschemaname)
         
         sdereturnb4 = cx_sde.selectavalue(self.adminschema
                                          ,sql)
@@ -359,8 +374,9 @@ class DoittSdeTermSessionTestCase(unittest.TestCase):
               """from {0} """ \
               """where """ \
               """    UPPER(client_user) = UPPER(sys_context('USERENV','OS_USER')) """ \
-              """and UPPER(db_user) = '{1}' """.format(self.systemsessionview
-                                                      ,self.adminschemaname)
+              """and UPPER(db_user) = '{1}' """ \
+              """and UPPER(status) IN ('ACTIVE','INACTIVE')""".format(self.systemsessionview
+                                                                     ,self.adminschemaname)
 
         sdereturnb4 = cx_sde.selectavalue(self.adminschema
                                          ,sql)
