@@ -15,10 +15,10 @@ select missing from (
         and table_name IN ('DBMS_LOB','DBMS_LOCK','DBMS_PIPE','DBMS_UTILITY','DBMS_SQL','UTL_RAW')
         and grantee = 'PUBLIC'
     union
-        select regexp_substr('CREATE PROCEDURE,CREATE SEQUENCE,CREATE SESSION,CREATE TABLE,CREATE TRIGGER','[^,]+', 1, level) as missing
+        select regexp_substr('CREATE PROCEDURE,CREATE SEQUENCE,CREATE SESSION,CREATE TABLE,CREATE TRIGGER,SELECT ANY DICTIONARY','[^,]+', 1, level) as missing
             from dual
-        connect by regexp_substr('CREATE PROCEDURE,CREATE SEQUENCE,CREATE SESSION,CREATE TABLE,CREATE TRIGGER', '[^,]+', 1, level) is not null
-        minus 
+        connect by regexp_substr('CREATE PROCEDURE,CREATE SEQUENCE,CREATE SESSION,CREATE TABLE,CREATE TRIGGER,SELECT ANY DICTIONARY', '[^,]+', 1, level) is not null
+       minus 
         (
         select privilege 
         from 
