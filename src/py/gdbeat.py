@@ -50,18 +50,18 @@ if __name__ == "__main__":
     content += 'at {0} '.format(datetime.datetime.now())
     content += 'attempting to connect from {0} '.format(socket.gethostname())
 
-    #always log
+    # always log
     logger.info(content)
 
     msg.set_content(content)
     msg['From'] = emailfrom
+    
+    # this is headers only 
+    # if a string is passed to sendmail it is treated as a list with one element!
     msg['To'] = ptoemails
 
     if (not success or notifyonsuccess == 'Y'):
-        s = smtplib.SMTP(smtpfrom)
-        s.send_message(msg)
-        s.quit()
-
-
-
+        smtp = smtplib.SMTP(smtpfrom)
+        smtp.sendmail(msg['From'], msg['To'].split(","), msg.as_string())
+        smtp.quit()
 
