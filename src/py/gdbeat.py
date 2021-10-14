@@ -6,7 +6,6 @@ import socket
 import os
 from email.message import EmailMessage
 
-import gdb
 
 if __name__ == "__main__":
 
@@ -24,28 +23,39 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
+    # importing the (licensed) ESRI client side code is part of the round trip test
+    importsuccess = True
+    try:
+        import gdb
+    except ImportError:
+        importsuccess = False
+        content = 'Unknown if ESRI geodatabase on {0} is reachable. Module import failure. '.format(sdeconn)
+        msg['Subject'] = 'Indeterminate ESRI Geodatabase'
+
     success = False
 
-    try:
+    if importsuccess:
 
-        # failures will be in initialization 
-        # do not use gdb2test outside of this block, it may be undefined
+        try:
 
-        gdb2test = gdb.Gdb()
+            # failures will be in initialization 
+            # do not use gdb2test outside of this block, it may be undefined
+
+            gdb2test = gdb.Gdb()
     
-        if not gdb2test.checkconnection(): 
+            if not gdb2test.checkconnection(): 
+                success = False
+            else:
+                success = True    
+        except:
             success = False
-        else:
-            success = True    
-    except:
-        success = False
 
-    if success:
-        content = 'ESRI geodatabase on {0} is reachable '.format(sdeconn)    
-        msg['Subject'] = 'Reachable ESRI Geodatabase'
-    else:
-        content =  'ESRI geodatabase on {0} is unreachable '.format(sdeconn)
-        msg['Subject'] = 'Unreachable ESRI Geodatabase'
+        if success:
+            content = 'ESRI geodatabase on {0} is reachable '.format(sdeconn)    
+            msg['Subject'] = 'Reachable ESRI Geodatabase'
+        else:
+            content =  'ESRI geodatabase on {0} is unreachable '.format(sdeconn)
+            msg['Subject'] = 'Unreachable ESRI Geodatabase'
 
     content += 'at {0} '.format(datetime.datetime.now())
     content += 'attempting to connect from {0} '.format(socket.gethostname())
