@@ -277,6 +277,12 @@ class Gdb(object):
                                                    ,self.sdeconn
                                                    ,targetfcname)        
 
+    def importtable(self
+                   ,sourcetab
+                   ,targettabname):
 
-                                    
+        arcpy.TableToTable_conversion(sourcetab
+                                     ,self.sdeconn
+                                     ,targettabname)        
+                            
         
