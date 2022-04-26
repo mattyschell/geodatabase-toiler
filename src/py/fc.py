@@ -38,15 +38,19 @@ class Fc(object):
 
         logging.info('deleting {0}'.format(self.name)) 
 
-        desc = arcpy.Describe(self.featureclass)
-        
-        if desc.IsArchived == True:
+        if self.exists():
 
-            # disable archving and axe the _H table
-            arcpy.DisableArchiving_management(self.featureclass,
-                                              'DELETE') 
+            desc = arcpy.da.Describe(self.featureclass)
 
-        arcpy.Delete_management(self.featureclass)
+            if 'isArchived' in desc:
+
+                if desc['isArchived'] == True:
+
+                    # disable archving and axe the _H table
+                    arcpy.DisableArchiving_management(self.featureclass,
+                                                    'DELETE') 
+
+            arcpy.Delete_management(self.featureclass)
 
     def locksexist(self):
 
