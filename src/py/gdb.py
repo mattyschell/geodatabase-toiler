@@ -18,7 +18,6 @@ class Gdb(object):
 
         #https://pro.arcgis.com/en/pro-app/arcpy/functions/workspace-properties.htm
         desc = arcpy.Describe(self.sdeconn)
-       
         connProps = desc.connectionProperties
         self.username = connProps.user.upper()
 
@@ -59,9 +58,12 @@ class Gdb(object):
 
     def isadministrator(self):
 
-        sdereturn = cx_sde.selectavalue(self.sdeconn
-                                       ,self.fetchsql('{0}'.format('isadministrator.sql')))
-
+        try:
+           sdereturn = cx_sde.selectavalue(self.sdeconn
+                                          ,self.fetchsql('{0}'.format('isadministrator.sql')))
+        except:
+            return False
+            
         if sdereturn == 1:
             return True
         else:
@@ -268,6 +270,8 @@ class Gdb(object):
                           ,sourcefc
                           ,targetfcname):
 
+        #print('fc2fc {0} {1} {2}'.format(sourcefc, self.sdeconn, targetfcname))
+
         # I like this formulation I am writing code for gdbs, and gdbs import fcs
         #    (avoid thinking of this as a "copy" or an ETL)
         # caller to manage locks, delete if exists, etc, via the fc class
@@ -283,6 +287,7 @@ class Gdb(object):
 
         arcpy.TableToTable_conversion(sourcetab
                                      ,self.sdeconn
-                                     ,targettabname)        
+                                     ,targettabname)   
+   
                             
         
