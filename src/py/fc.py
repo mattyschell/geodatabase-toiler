@@ -154,7 +154,8 @@ class Fc(object):
                                                                ,edits))  
 
     def index(self
-             ,column):
+             ,column
+             ,unique=False):
 
         # https://pro.arcgis.com/en/pro-app/tool-reference/data-management/add-attribute-index.htm          
         # unique indexes cant be specified for multiversioned tables   
@@ -168,7 +169,8 @@ class Fc(object):
                                                        ,column
                                                        ,'{0}{1}{2}'.format(self.name 
                                                                           ,column
-                                                                          ,'IX')))
+                                                                          ,'IX')
+                                                       ,unique))
 
     def analyze(self
                ,components=['BUSINESS','ADDS','DELETES']):

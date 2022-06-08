@@ -58,16 +58,27 @@ class Gdb(object):
 
     def isadministrator(self):
 
-        try:
-           sdereturn = cx_sde.selectavalue(self.sdeconn
-                                          ,self.fetchsql('{0}'.format('isadministrator.sql')))
-        except:
-            return False
-            
-        if sdereturn == 1:
-            return True
-        else:
-            return False
+        if self.database == 'oracle':
+
+            try:
+                sdereturn = cx_sde.selectavalue(self.sdeconn
+                                               ,self.fetchsql('{0}'.format('isadministrator.sql')))
+            except:
+                return False
+                
+            if sdereturn == 1:
+                return True
+            else:
+                return False
+
+        elif self.database == 'sqlserver':
+
+            # bad!  There has to be an arcpy env for this
+            # I cant find it, looked for a whole 15 minutes and everything 
+            if self.sdeconn.lower().endswith('dbo.sde'):
+                return True
+            else:
+                return False
     
     def isadministratoractive(self):
         
@@ -270,7 +281,7 @@ class Gdb(object):
                           ,sourcefc
                           ,targetfcname):
 
-        #print('fc2fc {0} {1} {2}'.format(sourcefc, self.sdeconn, targetfcname))
+        print('fc2fc {0} {1} {2}'.format(sourcefc, self.sdeconn, targetfcname))
 
         # I like this formulation I am writing code for gdbs, and gdbs import fcs
         #    (avoid thinking of this as a "copy" or an ETL)
