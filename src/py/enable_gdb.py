@@ -1,6 +1,7 @@
 """Check for all prerequisites, and if met, enable enterprise gdb
 """
 import os
+import logging
 
 import gdb
 
@@ -9,6 +10,15 @@ import gdb
 # C:\matt_projects\geodatabase-toiler>set ARCPY2PATH=C:\Python27\ArcGIS10.7
 # C:\matt_projects\geodatabase-toiler\enablegdb.bat 
 # calls this!
+
+timestr = time.strftime("%Y%m%d-%H%M%S")
+targetlog = os.path.join(os.environ['TARGETLOGDIR'] 
+                        ,'enablegdb-{0}.log'.format(timestr))
+
+logging.basicConfig(filename=targetlog
+                   ,level=logging.INFO)
+    
+logging.info('Starting enable_gdb log')
 
 authfile = os.environ['AUTHFILE']
 
@@ -28,5 +38,7 @@ except:
     exitcode = 1
 finally:
     babygdb.spoolsql('stop')
+
+logging.info('Completed enabling gdb, exit code is {0}'.format(exitcode))
 
 exit(exitcode)

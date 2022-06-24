@@ -18,11 +18,10 @@ https://desktop.arcgis.com/en/arcmap/10.7/manage-data/gdbs-in-oracle/overview-ge
 
 ## Regression Test Code Written For The Toilin'
 
-To guarantee all tests run execute as the "SDE" geodatabase administrator in a 
-dev environment. 
+To guarantee all tests run execute as the "SDE" geodatabase administrator in a dev environment. 
 
 ```bat
-> set SDEFILE=XX:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\bldg.sde
+> set SDEFILE=C:\XXX\Connections\xxx\env\xxx-xxxxxx\yyy.sde
 > testall.bat
 ```
 
@@ -31,8 +30,8 @@ dev environment.
 A big bloated wrapper to arcpy.EnableEnterpriseGeodatabase_management. 
 
 ```bat
-> set SDEFILE=XX:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\mschell.sde
-> set AUTHFILE=XX:\GIS\Internal\Connections\oracle19c\dev\GIS-ditGSdv1\mschell_private\keycodes
+> set SDEFILE=C:\XXX\Connections\xxx\env\xxx-xxxxxx\yyy.sde
+> set AUTHFILE=C:\XXX\Connections\xxx\env\xxx-xxxxxx\keycodes
 > set ARCPY2PATH=C:\Python27\ArcGIS10.7
 > enablegdb.bat
 ```
