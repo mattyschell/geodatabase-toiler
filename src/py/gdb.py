@@ -110,11 +110,7 @@ class Gdb(object):
     def fetchsql(self
                 ,whichsql):
 
-        # fetch any sql from the library under the repo sql_oracle directory
-        # highfalutin plans that some day we might have an sql_postgres directory
-        # and simply instantiating a gdb instance with database type 'postgres'
-        # switcheroos all sql here
-
+        # fetch any sql from the library under the repo sql_<database> directory
         sqlfilepath = pathlib.Path(__file__).parent.parent \
                                             .joinpath('sql_{0}'.format(self.database)) \
                                             .joinpath(whichsql)
@@ -281,7 +277,7 @@ class Gdb(object):
                           ,sourcefc
                           ,targetfcname):
 
-        print('fc2fc {0} {1} {2}'.format(sourcefc, self.sdeconn, targetfcname))
+        # print('fc2fc {0} {1} {2}'.format(sourcefc, self.sdeconn, targetfcname))
 
         # I like this formulation I am writing code for gdbs, and gdbs import fcs
         #    (avoid thinking of this as a "copy" or an ETL)

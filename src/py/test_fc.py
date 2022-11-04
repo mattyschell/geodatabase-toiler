@@ -6,6 +6,7 @@ import glob
 import cx_sde
 import gdb
 import fc
+import arcpy
 
 
 class FcTestCase(unittest.TestCase):
@@ -122,6 +123,16 @@ class FcTestCase(unittest.TestCase):
 
         self.assertEqual(self.testfc.analyze(), 0)
 
+    #def test_jprintdesc(self):
+
+    # not sure what this was for
+    #    self.testfc.version()
+
+    #    desc = arcpy.da.Describe(self.testfc.featureclass)
+
+    #    print(desc)
+
+     
 
 if __name__ == '__main__':
     unittest.main()
