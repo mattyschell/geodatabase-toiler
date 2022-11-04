@@ -9,11 +9,17 @@ from email.message import EmailMessage
 
 if __name__ == "__main__":
 
-    if len(sys.argv) != 3:
-        raise ValueError('Expected 2 inputs, notifyonsuccess flag, emailsto')
+    #if len(sys.argv) != 3 \
+    #or len(sys.argv) != 4:
+    #    raise ValueError('Expected 2 or 3 inputs, notifyonsuccess flag, emailsto, platform')
 
     notifyonsuccess = sys.argv[1]
     ptoemails       = sys.argv[2]
+    try:
+        platform = sys.argv[3].lower()
+    except:
+        platform = 'oracle'
+
     emailfrom       = os.environ['NOTIFYFROM']
     smtpfrom        = os.environ['SMTPFROM']
 
@@ -41,7 +47,8 @@ if __name__ == "__main__":
             # failures will be in initialization 
             # do not use gdb2test outside of this block, it may be undefined
 
-            gdb2test = gdb.Gdb()
+            gdb2test = gdb.Gdb(None
+                              ,platform)
     
             if not gdb2test.checkconnection(): 
                 success = False

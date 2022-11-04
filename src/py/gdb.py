@@ -98,9 +98,12 @@ class Gdb(object):
         check = False
 
         try:
-            sdereturn = cx_sde.selectavalue(self.sdeconn
-                                           ,self.fetchsql('{0}'.format('dummysql.sql')))
-            if len(sdereturn) == 1:
+            sdereturn = cx_sde.execute_immediate(self.sdeconn
+                                                ,self.fetchsql('{0}'.format('dummysql.sql')))
+            # almost anything is a success
+            # dummysql should return a list regardless of db type
+            # this is our req
+            if len(sdereturn) >= 1:
                 check = True
         except:
             check = False
