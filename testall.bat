@@ -1,5 +1,5 @@
 REM executes from ArcGIS Pro conda environment, SDEFILE env must be set
-set SDEFILE=X:\XXX\Connections\xxxxx\xxx\xxxx\xxx\xxx.sde
+set SDEFILE=X:\XXX\Connections\xxxxx\xxx\xxxx-xxx-xx\xxxx\xxx.sde
 CALL c:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_cx_sde_postgresql.py
 set SDEFILE=X:\XXX\Connections\xxxxx\xxx\xxxx\xxx.sde
 CALL c:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_cx_sde.py 
