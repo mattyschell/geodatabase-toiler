@@ -1,7 +1,6 @@
 # The ESRI Enterprise Geodatabase Administration Toilin'
 
-Code and helpers for managing ESRI Enterprise Geodatabases.  It is our toil
-friends, our rules, the trick is never to be afraid.
+Code and helpers for managing ESRI Enterprise Geodatabases.  It is our toil friends, our rules, the trick is never to be afraid.
 
 Pro first:
 https://pro.arcgis.com/en/pro-app/help/data/geodatabases/manage-oracle/overview-geodatabases-oracle.htm
@@ -25,20 +24,33 @@ To guarantee all tests run execute as the "SDE" geodatabase administrator in a d
 > testall.bat
 ```
 
-## Enable An Enterprise Geodatabase
+## Simple Wrappers For Simple People
 
-A big bloated wrapper to arcpy.EnableEnterpriseGeodatabase_management. 
+The code in this repo is mostly simple opinionated wrappers to arcpy geodatabase, feature class, and versioning functions.
 
-```bat
-> set SDEFILE=C:\XXX\Connections\xxx\env\xxx-xxxxxx\yyy.sde
-> set AUTHFILE=C:\XXX\Connections\xxx\env\xxx-xxxxxx\keycodes
-> set ARCPY2PATH=C:\Python27\ArcGIS10.7
-> enablegdb.bat
+For example, import a feature class from another geodatabase and enable versioning.
+
+
+
+```py
+import gdb
+import fc
+
+targetfcname = 'TEST_TAXLOTS'
+sourcefc     = """C:/connections/prod.sde/TAXLOTS"""
+
+# SET SDEFILE=C:\connections\dev.sde
+targetgdb = gdb.Gdb()
+
+targetgdb.importfeatureclass(sourcefc
+                            ,targetfcname)
+
+targetfc = fc.Fc(targetgdb
+                ,targetfcname)          
+
+targetfc.version()                    
 ```
 
-1. Checks required privileges
-2. Spools SQL to a table so we can snoop on ESRI and debug errors
-3. Shells out to ArcMap's python 2.7 for geodatabase creation.  Allows control over the version (ex 10.7.1)
-4. Updates database keywords so we will default to native database geometries instead of ESRI ransomware 
+See /src/py/test_*.py for more usage demonstrations.
 
 
