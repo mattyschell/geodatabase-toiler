@@ -21,7 +21,8 @@ class Version(object):
         for version in arcpy.da.ListVersions(self.gdb.sdeconn):
             
             # List version returns 'SCHEMA.VERSIONNAME'
-            # elsewhere in ESRI methods we need only VERSIONNAME, it is annoying
+            # elsewhere in ESRI methods we need only VERSIONNAME, 
+            # it is annoying
 
             if version.name == self.versionname:
 
@@ -84,3 +85,43 @@ class Version(object):
         #Finished reconcile.
         #Succeeded at Wednesday, December 30, 2020 2:35:41 PM (Elapsed Time: 4.93 seconds)
         return output
+
+    def iseditable(self):
+
+        # in our world editable is equivalent to public
+        # since edits are performed by named user schemas
+
+        # Lists the versions the connected user has permission to use
+        #versions = arcpy.ListVersions(self.gdb.sdeconn)
+
+        for version in arcpy.da.ListVersions(self.gdb.sdeconn):
+
+            # print(version.name)
+            # print(version.access)
+            # SCHEMANAME.TEST_VERSION
+            # Protected
+            # https://pro.arcgis.com/en/pro-app/latest/arcpy/data-access/version.htm
+
+            if  version.name == self.versionname \
+            and version.access.upper() == 'PUBLIC':
+                return True
+
+        return False
+
+    def protect(self):
+
+        arcpy.management.AlterVersion(self.gdb.sdeconn
+                                     ,self.name
+                                     ,"" # name
+                                     ,"" # description
+                                     ,'PROTECTED')
+
+    def unprotect(self):
+
+        arcpy.management.AlterVersion(self.gdb.sdeconn
+                                     ,self.name
+                                     ,"" # name
+                                     ,"" # description
+                                     ,'PUBLIC')
+
+

@@ -59,6 +59,30 @@ class VersionTestCase(unittest.TestCase):
 
         self.version.delete()
 
+    def test_eeditability(self):
+
+        self.version.create()
+
+        self.assertTrue(self.version.iseditable())
+
+    def test_fprotect(self):
+
+        self.version.create()
+
+        self.version.protect()
+
+        self.assertFalse(self.version.iseditable())
+
+    def test_gprotect(self):
+
+        self.version.create()
+
+        self.version.protect()
+
+        self.version.unprotect()
+
+        self.assertTrue(self.version.iseditable())
+
 
 if __name__ == '__main__':
     unittest.main()
