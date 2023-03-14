@@ -2,6 +2,7 @@ import os
 import pathlib
 import unittest
 
+import arcpy
 import cx_sde
 import gdb
 
@@ -105,6 +106,19 @@ class GdbTestCase(unittest.TestCase):
 
         self.assertEqual(self.geodatabase.rebuildindexes(), 0)
 
+    def test_iregisterfeatureclass(self):
+
+        sdereturn = cx_sde.execute_immediate(self.sdeconn
+                                            ,'create table foo as select 1 as notobjectid from dual')
+
+        # esri creates objectid in int format or whatever 
+        try:
+            self.assertEqual(self.geodatabase.registerfeatureclass('foo'), 0)
+        finally:
+            # consider moving delete to gdb class
+            arcpy.Delete_management(os.path.join(self.sdeconn,'foo'))
+                                                                               
+                                        
 
 if __name__ == '__main__':
     unittest.main()

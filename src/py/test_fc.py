@@ -15,6 +15,7 @@ class FcTestCase(unittest.TestCase):
     def setUpClass(self):
 
         self.sdeconn = os.environ['SDEFILE']
+
         self.testgdb = gdb.Gdb()
         # c:\matt_projects\geodatabase-toiler\src\py\testdata\testdata.gpkg\main.BUILDING
         self.srctestfcdir = os.getcwd() + r'\\src\\py\\testdata\\'
@@ -123,15 +124,9 @@ class FcTestCase(unittest.TestCase):
 
         self.assertEqual(self.testfc.analyze(), 0)
 
-    #def test_jprintdesc(self):
+    def test_ianalyze(self):
 
-    # not sure what this was for
-    #    self.testfc.version()
-
-    #    desc = arcpy.da.Describe(self.testfc.featureclass)
-
-    #    print(desc)
-
+        self.assertEqual(self.testfc.analyze(), 0)
      
 
 if __name__ == '__main__':

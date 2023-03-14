@@ -299,5 +299,15 @@ class Gdb(object):
                                      ,self.sdeconn
                                      ,targettabname)   
    
-                            
-        
+    def registerfeatureclass(self
+                            ,tablename
+                            ,objectidcolummn = None
+                            ,shapecolumn  = None):
+
+        return \
+            self.interpret(arcpy.management.RegisterWithGeodatabase(os.path.join(self.sdeconn
+                                                                                ,tablename)
+                                                                   ,objectidcolummn
+                                                                   ,shapecolumn))
+            
+            
