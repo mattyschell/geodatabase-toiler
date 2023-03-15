@@ -165,7 +165,7 @@ class Fc(object):
 
         # BUILDINGBINIX 
         # BUILDING_HISTORICDOITT_IDIX = 27 careful friend
-        return self.interpret(arcpy.AddIndex_management(self.featureclass
+        return self.interpret(arcpy.management.AddIndex(self.featureclass
                                                        ,column
                                                        ,'{0}{1}{2}'.format(self.name 
                                                                           ,column
