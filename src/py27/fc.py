@@ -28,5 +28,18 @@ class Fc(object):
         # https://desktop.arcgis.com/en/arcmap/10.6/tools/data-management-toolbox/create-versioned-view.htm
 
         self.logger.info('Py27 is Creating versioned views for {0}'.format(self.name)) 
+        self.logger.info('Like so  arcpy.CreateVersionedView_management({0})'.format(self.featureclass)) 
 
         arcpy.CreateVersionedView_management(self.featureclass)
+
+    def addglobalids(self):
+
+        # with a 10.7 enterprise geodatabase and versioned views
+        # (which are created by default now)
+        # it is not possible to add globalids from arcgis pro or arcmap 10.8+
+        # the globalid tools fail with new columns populated with all {00-00}s
+        # and the versioned view gone.  Error is from the DBMS and comes out 
+        # on the ESRI side as the famous 99999s
+        # We must monkey patch global id creation from  ArcGIS Desktop 10.7
+        # this is a lot of chit chat for one line of code. Stop being obnoxious
+        arcpy.AddGlobalIDs_management(self.featureclass)
