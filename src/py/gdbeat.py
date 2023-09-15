@@ -19,6 +19,14 @@ if __name__ == "__main__":
         platform = sys.argv[3].lower()
     except:
         platform = 'oracle'
+    try:
+        dbname = sys.argv[4] 
+    except:
+        # C:\xxx\yyyy.sde 
+        dbname = os.environ['SDEFILE']
+
+    if platform.lower().startswith('oracle'):
+        platform = 'oracle'
 
     emailfrom       = os.environ['NOTIFYFROM']
     smtpfrom        = os.environ['SMTPFROM']
@@ -35,7 +43,7 @@ if __name__ == "__main__":
         import gdb
     except ImportError:
         importsuccess = False
-        content = 'Unknown if ESRI geodatabase on {0} is reachable. Module import failure. '.format(sdeconn)
+        content = 'Unknown if ESRI geodatabase on {0} is reachable. Module import failure. '.format(dbname)
         msg['Subject'] = 'Indeterminate ESRI Geodatabase'
 
     success = False
@@ -58,13 +66,13 @@ if __name__ == "__main__":
             success = False
 
         if success:
-            content = 'ESRI geodatabase on {0} is reachable '.format(sdeconn)    
+            content = 'ESRI geodatabase on {0} is reachable '.format(dbname)    
             msg['Subject'] = 'Reachable ESRI Geodatabase'
         else:
-            content =  'ESRI geodatabase on {0} is unreachable '.format(sdeconn)
+            content =  'ESRI geodatabase on {0} is unreachable '.format(dbname)
             msg['Subject'] = 'Unreachable ESRI Geodatabase'
 
-    content += 'at {0} '.format(datetime.datetime.now())
+    content += 'at {0} '.format(datetime.datetime.now().strftime("%H:%M:%S"))
     content += 'attempting to connect from {0} '.format(socket.gethostname())
 
     # always log
