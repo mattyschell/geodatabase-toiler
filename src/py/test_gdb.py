@@ -1,5 +1,4 @@
 import os
-import pathlib
 import unittest
 
 import arcpy
@@ -14,6 +13,15 @@ class GdbTestCase(unittest.TestCase):
 
         self.sdeconn = os.environ['SDEFILE']
         self.geodatabase = gdb.Gdb() 
+        self.testfilegdb = os.path.join(os.path.dirname(os.path.realpath(__file__))
+                                       ,'testdata'
+                                       ,'nyc.gdb')
+        self.testborough = os.path.join(self.testfilegdb
+                                       ,'borough')
+        
+        # this is hard coded and bad
+        # but on the other hand if it moves that is also bad!
+        self.hostedborough = "https://services6.arcgis.com/yG5s3afENB5iO9fj/arcgis/rest/services/Borough_view/FeatureServer/0"
 
     @classmethod
     def tearDownClass(self):
@@ -118,7 +126,25 @@ class GdbTestCase(unittest.TestCase):
             # consider moving delete to gdb class
             arcpy.Delete_management(os.path.join(self.sdeconn,'foo'))
                                                                                
-                                        
+    def test_jimportfeatureclass(self):       
+
+        self.geodatabase.importfeatureclass(self.testborough
+                                           ,'TESTBOROUGH')   
+        
+        # these are available in the fc class so dont try this at home
+        self.assertTrue(arcpy.Exists(self.sdeconn + "/" + 'TESTBOROUGH'))
+
+        arcpy.Delete_management(self.sdeconn + "/" + 'TESTBOROUGH')
+
+    def test_kimporthostedfeatureclass(self):
+
+        self.geodatabase.importfeatureclass(self.hostedborough
+                                           ,'HOSTEDBOROUGH')   
+        
+        # these are available in the fc class so dont try this at home
+        self.assertTrue(arcpy.Exists(self.sdeconn + "/" + 'HOSTEDBOROUGH'))
+
+        #arcpy.Delete_management(self.sdeconn + "/" + 'HOSTEDBOROUGH')
 
 if __name__ == '__main__':
     unittest.main()
