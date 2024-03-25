@@ -4,4 +4,4 @@ from
 where 
     table_owner = user
 and table_name = 'TOILERTESTFC'
-and index_name LIKE 'TOILERTESTFCBIN%'
+and index_name LIKE 'TOILERTESTFCBORO%'

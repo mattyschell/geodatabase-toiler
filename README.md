@@ -17,7 +17,7 @@ https://desktop.arcgis.com/en/arcmap/10.7/manage-data/gdbs-in-oracle/overview-ge
 
 ## Regression Test Code Written For The Toilin'
 
-To guarantee all tests run execute as the "SDE" geodatabase administrator in a dev environment. 
+To maximize test coverage execute as the geodatabase administrator ("sde") in a development environment. Copy sample-testall.bat to testall.bat and update the inputs.
 
 ```bat
 > set SDEFILE=C:\XXX\Connections\xxx\env\xxx-xxxxxx\yyy.sde

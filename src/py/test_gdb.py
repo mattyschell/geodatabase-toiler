@@ -20,9 +20,11 @@ class GdbTestCase(unittest.TestCase):
                                        ,'borough')
         
         # this is hard coded and bad
-        # but on the other hand if it moves that is also bad!
+        # but on the other hand if it moves that is also bad
         self.hostedborough = "https://services6.arcgis.com/yG5s3afENB5iO9fj/arcgis/rest/services/Borough_view/FeatureServer/0"
-        
+        # from the arcgis online "living atlas"
+        self.hostedtable   = "https://services1.arcgis.com/ESMARspQHYMw9BZ9/ArcGIS/rest/services/LPA_DEC_2022_UK_NC/FeatureServer/0"
+
     @classmethod
     def tearDownClass(self):
 
@@ -142,10 +144,21 @@ class GdbTestCase(unittest.TestCase):
             self.geodatabase.importfeatureclass(self.hostedborough
                                                ,'HOSTEDBOROUGH')   
         
-            # these are available in the fc class so dont try this at home
+            # these are available in the fc class, dont follow this pattern
             self.assertTrue(arcpy.Exists(self.sdeconn + "/" + 'HOSTEDBOROUGH'))
         finally:
             arcpy.Delete_management(self.sdeconn + "/" + 'HOSTEDBOROUGH')
+
+    def test_limporthostedtable(self):
+
+        try:
+            self.geodatabase.importtable(self.hostedtable
+                                        ,'HOSTEDTABLE')   
+        
+            # these are available in the fc class, dont follow this pattern
+            self.assertTrue(arcpy.Exists(self.sdeconn + "/" + 'HOSTEDTABLE'))
+        finally:
+            arcpy.Delete_management(self.sdeconn + "/" + 'HOSTEDTABLE')
 
 if __name__ == '__main__':
     unittest.main()

@@ -83,8 +83,8 @@ class Fc(object):
 
         logging.info('versioning {0}'.format(self.name)) 
 
-        arcpy.RegisterAsVersioned_management(self.featureclass
-                                            ,"NO_EDITS_TO_BASE")
+        retval = self.interpret(arcpy.RegisterAsVersioned_management(self.featureclass
+                                                                    ,"NO_EDITS_TO_BASE"))
 
         # https://support.esri.com/en/technical-article/000023226
         # When an ArcGIS 10.8 / ArcGIS Pro 2.5 (or newer) client connects to a 
@@ -118,7 +118,10 @@ class Fc(object):
         #    ^
         # SyntaxError: invalid syntax
 
-    def trackedits(self):
+        return retval
+
+    def trackedits(self
+                  ,add_fields='NO_ADD_FIELDS'):
 
         # https://pro.arcgis.com/en/pro-app/tool-reference/data-management/enable-editor-tracking.htm
         # this will create fields only if they dont exist
@@ -132,7 +135,7 @@ class Fc(object):
                                                                    ,'CREATED_DATE'
                                                                    ,'LAST_EDITED_USER'
                                                                    ,'LAST_EDITED_DATE'
-                                                                   ,'NO_ADD_FIELDS'
+                                                                   ,add_fields
                                                                    ,'UTC'))
 
     def grantprivileges(self
@@ -162,14 +165,12 @@ class Fc(object):
         
         logging.info('indexing column {0} on {1}'.format(column
                                                         ,self.name))      
-
+                                           
         # BUILDINGBINIX 
-        # BUILDING_HISTORICDOITT_IDIX = 27 careful friend
+        # ESRI has started (3.0?) truncating index names at length 16
         return self.interpret(arcpy.management.AddIndex(self.featureclass
                                                        ,column
-                                                       ,'{0}{1}{2}'.format(self.name 
-                                                                          ,column
-                                                                          ,'IX')
+                                                       ,'{0}{1}{2}'.format(self.name,column,'IX')
                                                        ,unique))
 
     def analyze(self

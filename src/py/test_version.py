@@ -16,13 +16,20 @@ class VersionTestCase(unittest.TestCase):
         self.version = version.Version(self.geodatabase
                                       ,'TEST_VERSION')
         
+        self.childversion = version.Version(self.geodatabase
+                                           ,'TEST_CHILDVERSION'
+                                           ,'TEST_VERSION')
+        
+        self.childversion.delete()
         self.version.delete()
 
     @classmethod
     def tearDownClass(self):
 
         #delete tester version if it survives
+        self.childversion.delete()
         self.version.delete()
+        
 
     def test_aexists(self):
 
@@ -47,9 +54,12 @@ class VersionTestCase(unittest.TestCase):
     def test_drecnpost(self):
 
         self.version.create()
+        # go down another level
+        # default is usually protected
+        self.childversion.create()
 
-        # not much of a test bub
-        recnpostoutput = self.version.reconcileandpost()
+        # not much of a test 
+        recnpostoutput = self.childversion.reconcileandpost()
 
         self.assertIn('Succeeded'
                      ,recnpostoutput) 
@@ -57,6 +67,7 @@ class VersionTestCase(unittest.TestCase):
         self.assertIn('Finished reconcile'
                      ,recnpostoutput)
 
+        self.childversion.delete()
         self.version.delete()
 
     def test_eeditability(self):

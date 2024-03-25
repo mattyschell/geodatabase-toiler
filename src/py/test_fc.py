@@ -17,9 +17,19 @@ class FcTestCase(unittest.TestCase):
         self.sdeconn = os.environ['SDEFILE']
 
         self.testgdb = gdb.Gdb()
+
         # c:\matt_projects\geodatabase-toiler\src\py\testdata\testdata.gpkg\main.BUILDING
         self.srctestfcdir = os.getcwd() + r'\\src\\py\\testdata\\'
-        self.srctestfc = self.srctestfcdir + r'testdata.gpkg\main.BUILDING'
+        
+        # test geopackage not working (easily) any longer
+        # date fields are importing as timestamp
+        # self.srctestfc = self.srctestfcdir + r'testdata.gpkg\main.BUILDING'
+        self.srctestfilegdb = os.path.join(os.path.dirname(os.path.realpath(__file__))
+                                          ,'testdata'
+                                          ,'nyc.gdb')
+        
+        self.srctestfc = os.path.join(self.srctestfilegdb
+                                      ,'borough')
 
         self.testgdb.importfeatureclass(self.srctestfc
                                        ,'TOILERTESTFC')
@@ -34,7 +44,6 @@ class FcTestCase(unittest.TestCase):
     @classmethod
     def tearDownClass(self):
 
-        #pass
         self.testfc.delete()
 
         dummyfiles = glob.glob(os.path.join(self.srctestfcdir
@@ -55,17 +64,16 @@ class FcTestCase(unittest.TestCase):
 
         #TODO get versioning with bug workaround to work with the test here
 
-        self.testfc.version()
+        self.assertEqual(self.testfc.version(),0)
 
-        # careful, just for testing
-        self.testfc_evw = fc.Fc(self.testgdb
-                               ,'TOILERTESTFC_EVW')
+        #self.testfc_evw = fc.Fc(self.testgdb
+        #                       ,'TOILERTESTFC_EVW')
     
-        self.assertTrue(self.testfc_evw.exists())    
+        #self.assertTrue(self.testfc_evw.exists())    
 
     def test_dtrackedits(self):
 
-        self.assertEqual(self.testfc.trackedits(), 0)
+        self.assertEqual(self.testfc.trackedits('ADD_FIELDS'), 0)
 
         self.assertTrue('CREATED_DATE' in self.testfc.getfields() and \
                         'CREATED_USER' in self.testfc.getfields() and \
@@ -84,11 +92,10 @@ class FcTestCase(unittest.TestCase):
 
     def test_findex(self):
 
-        self.testfc.index('BIN')
+        self.assertEqual(self.testfc.index('BOROCODE')
+                        ,0)
 
-        idxkount = cx_sde.selectavalue(self.testgdb.sdeconn
-                                      ,self.testgdb.fetchsql('dummyindexcount.sql'))
-
+        # expect the index name to be truncated
         self.assertEqual(cx_sde.selectavalue(self.testgdb.sdeconn
                                             ,self.testgdb.fetchsql('dummyindexcount.sql'))
                         ,1)
@@ -113,16 +120,11 @@ class FcTestCase(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(self.srctestfcdir
                                                    ,'dummy.cpg')))
 
-
     def test_hrebuildindexes(self):
 
         self.testfc.version()
 
         self.assertEqual(self.testfc.rebuildindexes(), 0)
-
-    def test_ianalyze(self):
-
-        self.assertEqual(self.testfc.analyze(), 0)
 
     def test_ianalyze(self):
 
