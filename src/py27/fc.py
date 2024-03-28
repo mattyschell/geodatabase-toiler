@@ -3,7 +3,7 @@ import os
 import logging
 
 # monkey patch python 2.7 arcmap functionality
-# where arcgis pro is busted
+# where arcgis pro (or compatibility) is busted
 
 class Fc(object):
 
@@ -31,6 +31,13 @@ class Fc(object):
         self.logger.info('Like so  arcpy.CreateVersionedView_management({0})'.format(self.featureclass)) 
 
         arcpy.CreateVersionedView_management(self.featureclass)
+
+    def enablearchiving(self):
+
+        self.logger.info('Py27 is Creating versioned views for {0}'.format(self.name)) 
+        self.logger.info('Like so  arcpy.CreateVersionedView_management({0})'.format(self.featureclass)) 
+
+        arcpy.EnableArchiving_management(self.featureclass)
 
     def addglobalids(self):
 
