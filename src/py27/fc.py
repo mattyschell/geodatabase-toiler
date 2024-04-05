@@ -34,8 +34,8 @@ class Fc(object):
 
     def enablearchiving(self):
 
-        self.logger.info('Py27 is Creating versioned views for {0}'.format(self.name)) 
-        self.logger.info('Like so  arcpy.CreateVersionedView_management({0})'.format(self.featureclass)) 
+        self.logger.info('Py27 is Creating enabling archiving for {0}'.format(self.name)) 
+        self.logger.info('Like so  arcpy.EnableArchiving_management({0})'.format(self.featureclass)) 
 
         arcpy.EnableArchiving_management(self.featureclass)
 

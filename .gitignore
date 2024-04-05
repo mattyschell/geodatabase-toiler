@@ -150,3 +150,6 @@ scratch/
 
 #vs
 .vscode*
+
+# desktop software locks
+*.lock
