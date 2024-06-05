@@ -51,8 +51,8 @@ class Gdb(object):
         if 'succeeded' not in resobject.getMessages().lower():
 
             output = 1
-            logging.warn('response code is {0}'.format(resobject.status))
-            logging.warn('response messages are {0}'.format(resobject.getMessages()))
+            logging.warning('response code is {0}'.format(resobject.status))
+            logging.warning('response messages are {0}'.format(resobject.getMessages()))
 
         return output
 
@@ -109,6 +109,23 @@ class Gdb(object):
             check = False
 
         return check
+    
+    def fetchprj(self
+                ,whichprj):
+
+        # fetch a .prj from the resources directory
+        # ex: whichprj=2263
+        # get \geodatabase-toiler\src\resources\2263.prj
+        # and return an arcpy SpatialReference 
+        prjfilepath = pathlib.Path(__file__).parent.parent \
+                                            .joinpath('resources') \
+                                            .joinpath('{0}.prj'.format(whichprj))        
+
+        try:
+            return arcpy.SpatialReference(prjfilepath)
+        except:
+            logging.warning('unable to instantiate spatial reference from {0}'.format(prjfilepath))
+            raise ValueError('prj {0} is unknown to this gdb'.format(whichprj))
 
     def fetchsql(self
                 ,whichsql):
@@ -278,12 +295,17 @@ class Gdb(object):
 
     def importfeatureclass(self
                           ,sourcefc
-                          ,targetfcname):
+                          ,targetfcname
+                          ,targetfcsrid=None):
 
         # print('fc2fc {0} {1} {2}'.format(sourcefc, self.sdeconn, targetfcname))
 
-        # I like this formulation I am writing code for gdbs, and gdbs import fcs
-        #    (avoid thinking of this as a "copy" or an ETL)
+        if targetfcsrid:
+            # reproject on the fly
+            arcpy.env.outputCoordinateSystem = self.fetchprj(targetfcsrid) 
+            
+        # (avoid thinking of "copy" or ETL)
+        # This is a gdb and gdbs import fcs
         # caller to manage locks, delete if exists, etc, via the fc class
         # sourcefc is the hard part, any ESRI-approved will work like
         # C:\matt_projects\database_utils\arcgisconnections\bldg@giscmnt.sde\BLDG.BUILDING

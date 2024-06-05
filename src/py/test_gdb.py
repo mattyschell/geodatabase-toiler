@@ -160,5 +160,26 @@ class GdbTestCase(unittest.TestCase):
         finally:
             arcpy.Delete_management(self.sdeconn + "/" + 'HOSTEDTABLE')
 
+    def test_mimportprojectedfeatureclass(self):
+
+        # self.hostedborough is 3857 web mercator
+        testsrid = 2263
+        testfc   = 'HOSTEDBOROUGH'
+
+        try:
+            self.geodatabase.importfeatureclass(self.hostedborough
+                                               ,testfc
+                                               ,testsrid)   
+            
+            self.assertTrue(arcpy.Exists(self.sdeconn + "/" + testfc))
+            
+            sdereturn = cx_sde.selectavalue(self.sdeconn
+                                           ,'select a.shape.sdo_srid from {0} a where rownum = 1'.format(testfc))
+            self.assertEqual(sdereturn
+                            ,testsrid)       
+                   
+        finally:
+            arcpy.Delete_management(self.sdeconn + "/" + 'HOSTEDBOROUGH')
+
 if __name__ == '__main__':
     unittest.main()
