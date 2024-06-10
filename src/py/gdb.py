@@ -110,6 +110,14 @@ class Gdb(object):
 
         return check
     
+    def fetchtransformation(self
+                           ,whichprj):
+        
+        self.knowntransformations = {'2263': "WGS_1984_(ITRF00)_To_NAD_1983"
+                                    ,'3857': "WGS_1984_(ITRF00)_To_NAD_1983"}
+        
+        return self.knowntransformations.get(whichprj,None)
+
     def fetchprj(self
                 ,whichprj):
 
@@ -298,21 +306,22 @@ class Gdb(object):
                           ,targetfcname
                           ,targetfcsrid=None):
 
-        # print('fc2fc {0} {1} {2}'.format(sourcefc, self.sdeconn, targetfcname))
-
         if targetfcsrid:
             # reproject on the fly
             arcpy.env.outputCoordinateSystem = self.fetchprj(targetfcsrid) 
+            arcpy.env.geographicTransformations = "{0}".format(self.fetchtransformation(targetfcsrid))
             
         # (avoid thinking of "copy" or ETL)
         # This is a gdb and gdbs import fcs
         # caller to manage locks, delete if exists, etc, via the fc class
         # sourcefc is the hard part, any ESRI-approved will work like
         # C:\matt_projects\database_utils\arcgisconnections\bldg@giscmnt.sde\BLDG.BUILDING
+        # print('fc2fc {0} {1} {2}'.format(sourcefc, self.sdeconn, targetfcname))
+
         arcpy.FeatureClassToFeatureClass_conversion(sourcefc
                                                    ,self.sdeconn
                                                    ,targetfcname)        
-
+        
     def importtable(self
                    ,sourcetab
                    ,targettabname):
