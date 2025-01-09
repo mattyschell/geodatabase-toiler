@@ -45,6 +45,12 @@ if __name__ == "__main__":
         importsuccess = False
         content = 'Unknown if ESRI geodatabase on {0} is reachable. Module import failure. '.format(dbname)
         msg['Subject'] = 'Indeterminate ESRI Geodatabase'
+    except Exception as e:
+        importsuccess = False
+        content =  'Unknown if ESRI geodatabase on {0} is reachable. '.format(dbname)
+        content += 'Module import failure on {0}. '.format(socket.gethostname())
+        content += 'Usually this is due to an ESRI licensing failure on the host '
+        msg['Subject'] = 'Indeterminate ESRI Geodatabase'
 
     success = False
 
