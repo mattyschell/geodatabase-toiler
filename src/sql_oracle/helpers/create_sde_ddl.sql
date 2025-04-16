@@ -1,5 +1,9 @@
--- https://desktop.arcgis.com/en/arcmap/10.7/manage-data/gdbs-in-oracle/privileges-oracle.htm
-CREATE USER "SDE" IDENTIFIED BY **** DEFAULT TABLESPACE "SDE" TEMPORARY TABLESPACE "TEMP" PROFILE "DB_APP_PROFILE";
+-- https://pro.arcgis.com/en/pro-app/latest/help/data/geodatabases/manage-oracle/privileges-oracle.htm
+CREATE USER "SDE" 
+    IDENTIFIED BY **** 
+    DEFAULT TABLESPACE "****" 
+    TEMPORARY TABLESPACE "****" 
+    PROFILE "****";
 -- "You must grant the execute privilege on these packages to the public role to create or upgrade the geodatabase" 
 GRANT EXECUTE ON dbms_pipe TO public;
 GRANT EXECUTE ON dbms_lock TO public;
@@ -24,7 +28,6 @@ GRANT CREATE PUBLIC SYNONYM to "SDE";
 GRANT DROP PUBLIC SYNONYM to "SDE";
 GRANT EXECUTE ON DBMS_CRYPTO to "SDE";
 GRANT ADMINISTER DATABASE TRIGGER to "SDE";
--- optional, carried over from 11g.  Used to debug issues with geodatabase-issued SQL
 GRANT SELECT ANY DICTIONARY to "SDE";
 --
 -- verify connect as SDE
