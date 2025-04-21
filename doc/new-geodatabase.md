@@ -24,23 +24,26 @@ https://pro.arcgis.com/en/pro-app/latest/help/data/geodatabases/manage-oracle/ov
     * PL/SQL: [..src/sql_oracle/gdb_requirements.sql](../src/sql_oracle/gdb_requirements.sql) 
 7. Verify that spatial_vector_acceleration is TRUE
     * select * from v$parameter where name like '%vector%'
-8. Verify SDE privileges
-    * SQL: [../src/sql_oracle/privileges_gdb_creation.sql](src/sql_oracle/privileges_gdb_creation.sql)
-9. Run the enable enterise geodatabase tool from ArcGIS Pro
+8. Verify SDE privileges                
+    * SQL: [..src/sql_oracle/privileges_gdb_creation.sql](src/sql_oracle/privileges_gdb_creation.sql)
+9. Pluggable database: add an oracle text default lexer
+    * SQL: [..src/sql_oracle/ctx_lexer.sql](src/sql_oracle/ctx_lexer.sql)
+    * verify from SDE (see comments in ctx_lexer.sql)
+10. Run the enable enterise geodatabase tool from ArcGIS Pro
     * Docs: https://pro.arcgis.com/en/pro-app/latest/tool-reference/data-management/enable-enterprise-geodatabase.htm
     * There is a python script in this repo. Don't use it.
-10. Check for invalid objects
+11. Check for invalid objects
     * select * from user_objects where status <> 'VALID'
-11. As SDE add a feature class to the database.  Review it. Delete it.
-12. Check that the session count parameter is similar to other databases
+12. As SDE add a feature class to the database.  Review it. Delete it.
+13. Check that the session count parameter is similar to other databases
     * SELECT name, value FROM v$parameter WHERE name = 'sessions';
-13. Request application-specific database ROLEs
-14. Request creation or import of application schemas
+14. Request application-specific database roles
+15. Request creation or import of application schemas
     * "data creator" privileges
     * SQL to confirm: [..src/sql_oracle/privileges_data_creator.sql](https://github.com/mattyschell/geodatabase-toiler/blob/main/src/sql_oracle/privileges_data_creator.sql)
     * create a dummy table and/or feature class in these schemas
-15. Grant roles to application schemas. 
-16. Test roles. Change "rolename"
+16. Grant roles to application schemas. 
+17. Test roles. Change "rolename"
     * As schema1: create table rolenametest as select * from dual;
     * As schema1: grant select on rolenametest to "ROLENAME";
     * As schema2 with role: s   elect * from schema1.rolenametest; 

@@ -229,6 +229,8 @@ class Gdb(object):
 
     def enable(self,
                authfile):
+        
+        # dont use this
 
         if  self.checkconnection() \
         and self.checkgdbadminprivs() \

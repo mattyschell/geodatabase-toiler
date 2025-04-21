@@ -14,19 +14,7 @@ class Gdb(object):
     def enable(self,
                authfile):
             
-
-        try:
-            arcpy.EnableEnterpriseGeodatabase_management(self.sdeconn, 
-                                                         authfile)
-        
-        except:
-
-            print "{0}".format(arcpy.GetMessages())
-            print "using {0} and {1}".format(self.sdeconn,
-                                             authfile)
-            raise ValueError('Failure on enable enterprise gdb from ArcGIS')
-
-        
-        print "".format(arcpy.GetMessages())
+        # dont use this
+        pass
 
 
