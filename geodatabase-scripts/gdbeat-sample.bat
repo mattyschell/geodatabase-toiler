@@ -8,6 +8,7 @@ SET BASEPATH=X:\XXX
 SET PROJECT=XXX 
 REM unmask these
 set NOTIFY=xxxx@xxxx.xxxx.xxx
+set MAINTAINER=xxxx@xxxx.xxxx.xxx
 set NOTIFYFROM=xxxxxx@xxxx.xxx.xxx
 set SMTPFROM=xxxxxxxxx.xxxxxx
 REM review the rest 
@@ -16,4 +17,4 @@ set TOILER=%BASEPATH%\geodatabase-toiler\
 set LOG=%BASEPATH%\geodatabase-scripts\logs\gdbeat\gdbeat_%DBNAME%.log
 set SPAMSUCCESS=N
 echo calling gdbeat on %date% at %time% > %LOG%
-c:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat %TOILER%src\py\gdbeat.py %SPAMSUCCESS% %NOTIFY% %DBTYPE% %DBNAME%
+c:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat %TOILER%src\py\gdbeat.py %SPAMSUCCESS% %NOTIFY% %DBTYPE% %DBNAME% %MAINTAINER%

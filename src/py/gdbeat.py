@@ -9,10 +9,7 @@ from email.message import EmailMessage
 
 if __name__ == "__main__":
 
-    #if len(sys.argv) != 3 \
-    #or len(sys.argv) != 4:
-    #    raise ValueError('Expected 2 or 3 inputs, notifyonsuccess flag, emailsto, platform')
-
+    
     notifyonsuccess = sys.argv[1]
     ptoemails       = sys.argv[2]
     try:
@@ -24,6 +21,10 @@ if __name__ == "__main__":
     except:
         # C:\xxx\yyyy.sde 
         dbname = os.environ['SDEFILE']
+    try:
+        maintaineremails = sys.argv[5] 
+    except:
+        maintaineremails = ptoemails
 
     if platform.lower().startswith('oracle'):
         platform = 'oracle'
@@ -44,13 +45,13 @@ if __name__ == "__main__":
     except ImportError:
         importsuccess = False
         content = 'Unknown if ESRI geodatabase on {0} is reachable. Module import failure. '.format(dbname)
-        msg['Subject'] = 'Indeterminate ESRI Geodatabase'
+        msg['Subject'] = 'Unknown ESRI Geodatabase'
     except Exception as e:
         importsuccess = False
         content =  'Unknown if ESRI geodatabase on {0} is reachable. '.format(dbname)
         content += 'Module import failure on {0}. '.format(socket.gethostname())
-        content += 'Usually this is due to an ESRI licensing failure on the host '
-        msg['Subject'] = 'Indeterminate ESRI Geodatabase'
+        content += 'Check the host and ESRI licensing '
+        msg['Subject'] = 'Unknown ESRI Geodatabase'
 
     success = False
 
@@ -89,7 +90,11 @@ if __name__ == "__main__":
     
     # this is headers only 
     # if a string is passed to sendmail it is treated as a list with one element!
-    msg['To'] = ptoemails
+    if importsuccess:
+        msg['To'] = ptoemails
+    else:
+        # https://github.com/mattyschell/geodatabase-toiler/issues/20
+        msg['To'] = maintaineremails
 
     if (not success or notifyonsuccess == 'Y'):
         smtp = smtplib.SMTP(smtpfrom)
