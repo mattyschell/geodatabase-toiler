@@ -51,6 +51,8 @@ https://pro.arcgis.com/en/pro-app/latest/help/data/geodatabases/manage-oracle/ov
     * As schema1: create table rolenametest as select * from dual;
     * As schema1: grant select on rolenametest to "ROLENAME";
     * As schema2 with roles: select * from schema1.rolenametest; 
+20. Request common system views in lieu of "select any dictionary"
+    * View on dba_users
 
 
 ### Post-Stabilization
