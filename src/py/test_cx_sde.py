@@ -4,7 +4,6 @@ import pathlib
 
 import cx_sde
 
-
 class UtilsTestCase(unittest.TestCase):
 
     @classmethod
@@ -12,7 +11,6 @@ class UtilsTestCase(unittest.TestCase):
 
         self.sdeconn = os.environ['SDEFILE']
         
-
     @classmethod
     def tearDownClass(self):
 
@@ -30,11 +28,9 @@ class UtilsTestCase(unittest.TestCase):
 
         self.assertEqual(sdereturn[0], 'X')
 
-
     def test_bexecute_immediate(self):
 
         #sql returns a list with 2 Xs
-
         sql = 'SELECT dummy from dual UNION ALL select dummy from dual'
         sdereturn = cx_sde.execute_immediate(self.sdeconn,
                                              sql)
@@ -42,7 +38,6 @@ class UtilsTestCase(unittest.TestCase):
         self.assertIsInstance(sdereturn, list)
 
         self.assertEqual(len(sdereturn), 2)
-
 
     def test_cselectavalue(self):
 
@@ -52,7 +47,6 @@ class UtilsTestCase(unittest.TestCase):
                                         sql)
 
         self.assertEqual(sdereturn, 'X')
-
 
     def test_dselectnull(self):
 
@@ -66,7 +60,6 @@ class UtilsTestCase(unittest.TestCase):
             pass
         else:
             self.assertFalse(sdereturn)
-
 
     def test_eselectacolumn(self):
 
@@ -93,8 +86,6 @@ class UtilsTestCase(unittest.TestCase):
 
         sql = 'SELECT boo FROM dual'
 
-        print(f"Expected sql fail on next line from {sql}")
-
         try:
             output = cx_sde.selectacolumn(self.sdeconn,
                                           sql)
@@ -102,7 +93,6 @@ class UtilsTestCase(unittest.TestCase):
             pass
         else:
             raise ValueError('Shoulda failed')
-
 
     def test_gselectanumbercolumn(self):
 
@@ -124,7 +114,6 @@ class UtilsTestCase(unittest.TestCase):
             self.assertEqual(len(output), 2)
             self.assertEqual(output[0], 1)
             self.assertEqual(output[1], 1)
-
     
     def test_hselectanullcolumn(self):
 

@@ -213,5 +213,9 @@ class Fc(object):
     # TODO exportogeojson if ESRI tool does something other than error 99999 (guess: sdo_geometry not supported)
     # For now export to shp, then ogr2ogr to other formats.  Classic
 
+    def createversionedviews(self):
 
-
+        return self.interpret(arcpy.management.CreateVersionedView(
+            self.featureclass)
+        )
+        

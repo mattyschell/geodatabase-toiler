@@ -1,9 +1,13 @@
-REM executes from ArcGIS Pro conda environment
-REM not sure why I was using conda B in the D
-REM consider revising to standard python.exe
-set BASEPATH=C:\xxx
-set SDEFILE=%BASEPATH%\yyy\zzz.sde
-CALL c:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_cx_sde.py 
-CALL c:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_gdb.py
-CALL c:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_fc.py
-CALL c:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_version.py
+set BASEPATH=X:\xxx
+set SDEFILE=%BASEPATH%\xxx\xxx.sde
+set PYTHON1=C:\Progra~1\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe
+set PYTHON2=C:\Users\%USERNAME%\AppData\Local\Programs\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe
+if exist "%PYTHON1%" (
+    set PROPY=%PYTHON1%
+) else if exist "%PYTHON2%" (
+    set PROPY=%PYTHON2%
+)
+call %PROPY% .\src\py\test_cx_sde.py 
+call %PROPY% .\src\py\test_gdb.py
+call %PROPY% .\src\py\test_fc.py
+call %PROPY% .\src\py\test_version.py

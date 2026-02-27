@@ -21,9 +21,6 @@ class FcTestCase(unittest.TestCase):
         # c:\matt_projects\geodatabase-toiler\src\py\testdata\testdata.gpkg\main.BUILDING
         self.srctestfcdir = os.getcwd() + r'\\src\\py\\testdata\\'
         
-        # test geopackage not working (easily) any longer
-        # date fields are importing as timestamp
-        # self.srctestfc = self.srctestfcdir + r'testdata.gpkg\main.BUILDING'
         self.srctestfilegdb = os.path.join(os.path.dirname(os.path.realpath(__file__))
                                           ,'testdata'
                                           ,'nyc.gdb')
@@ -69,7 +66,7 @@ class FcTestCase(unittest.TestCase):
         #self.testfc_evw = fc.Fc(self.testgdb
         #                       ,'TOILERTESTFC_EVW')
     
-        #self.assertTrue(self.testfc_evw.exists())    
+        #self.assertTrue(self.testfc_evw.exists()) 
 
     def test_dtrackedits(self):
 
@@ -130,6 +127,17 @@ class FcTestCase(unittest.TestCase):
 
         self.assertEqual(self.testfc.analyze(), 0)
      
+    def test_jversionedviews(self):
+
+        pass
+        # must use py27/fc.py unless geodatabase is 10.8+ 
+        
+        #arcgisscripting.ExecuteError: ERROR 999999: Something unexpected caused the tool to fail. Contact Esri Technical Support (http://esriurl.com/support) to Report a Bug, and refer to the error help for potential solutions or workarounds.
+        #Underlying DBMS error [ORA-04043: object GEODATASHARE.TOILERTESTFC_EVW does not exist]
+        #Failed to execute (CreateVersionedView).
+
+        #self.assertEqual(self.testfc.createversionedviews(), 0)
+        
 
 if __name__ == '__main__':
     unittest.main()

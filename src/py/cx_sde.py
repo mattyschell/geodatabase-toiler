@@ -1,29 +1,29 @@
 import arcpy
 
+class SDEConnectionError(RuntimeError):
+    pass
 
-def execute_immediate(sde,
-                      sql):
+class SDESQLExecutionError(RuntimeError):
+    pass
 
+
+def execute_immediate(sde, sql):
     try:
-
         sde_conn = arcpy.ArcSDESQLExecute(sde)
-
-    except:
-
-        print (arcpy.GetMessages())
-        raise
+    except Exception as err:
+        msg = arcpy.GetMessages() or str(err)
+        raise SDEConnectionError(f"Failed to connect using SDE connection '{sde}': {msg}") from err
 
     try:
-
-        sde_return = sde_conn.execute(sql)
-
+        result = sde_conn.execute(sql)
     except Exception as err:
+        msg = arcpy.GetMessages() or str(err)
+        raise SDESQLExecutionError(f"SQL execution failed for: {sql}\nArcPy message: {msg}") from err
+    finally:
+        del sde_conn
 
-        print (f"sql fail on {sql}") 
-        raise ValueError(err)
+    return result
 
-    del sde_conn
-    return sde_return
 
 def execute_statements(sde
                       ,sqls):
