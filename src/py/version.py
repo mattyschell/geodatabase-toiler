@@ -1,4 +1,5 @@
 import arcpy
+import logging
 
 import gdb
 
@@ -66,14 +67,42 @@ class Version(object):
                                                           ,'KEEP_VERSION'
                                                           ,None) #"c:\RecLog.txt")
 
-        except: # Exception, inst:
-            raise ValueError("reconcileandpost of {0} totally bombed".format(self.versionname))
+        except Exception as exc:
+            # Include ArcPy diagnostics, but keep noise low by trimming blanks and duplicates.
+            gp_errors = (arcpy.GetMessages(2) or '').strip()
+            gp_messages = (arcpy.GetMessages() or '').strip()
+
+            details = []
+            if gp_errors:
+                details.append('arcpy errors: {0}'.format(gp_errors))
+            if gp_messages and gp_messages != gp_errors:
+                details.append('arcpy messages: {0}'.format(gp_messages))
+
+            if len(details) == 0:
+                details.append('arcpy returned no diagnostic messages')
+
+            raise ValueError(
+                "reconcileandpost of {0} totally bombed. {1}".format(self.versionname
+                                                                      ,' | '.join(details))
+            ) from exc
         
         output = resobject.getMessages()
+        output_lower = output.lower()
+
+        not_performed = [
+            'was not performed',
+            'no edit versions to reconcile',
+        ]
+
+        no_op_reconcile = any(msg in output_lower for msg in not_performed)
 
         if resobject.status != 4 \
-        or 'warning' in output.lower()  \
-        or 'error' in output.lower(): 
+        or 'warning' in output_lower  \
+        or 'error' in output_lower \
+        or no_op_reconcile:
+            if no_op_reconcile:
+                # ArcPy can report "Succeeded" for no-op reconciles; treat as operational failure.
+                logging.info('reconcileandpost produced no-op output and is treated as failure for {0}'.format(self.versionname))
             raise ValueError("reconcileandpost of {0} failed, see {1}".format(self.versionname
                                                                              ,output))
 
