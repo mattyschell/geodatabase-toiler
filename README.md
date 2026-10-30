@@ -17,10 +17,9 @@ https://desktop.arcgis.com/en/arcmap/10.7/manage-data/gdbs-in-oracle/overview-ge
 
 ## Regression Test Code Written For The Toilin'
 
-To maximize test coverage execute as the geodatabase administrator ("sde") in a development environment. Copy sample-testall.bat to testall.bat and update the inputs.
+The database integration tests require the ArcGIS Pro environment and an SDE connection. To maximize test coverage execute as the geodatabase administrator ("sde") in a development environment. Copy sample-testall.bat to testall.bat and update the inputs.
 
 ```bat
-> set SDEFILE=C:\XXX\Connections\xxx\env\xxx-xxxxxx\yyy.sde
 > testall.bat
 ```
 
@@ -52,5 +51,4 @@ targetfc.version()
 ```
 
 See /src/py/test_*.py for more usage demonstrations.
-
 

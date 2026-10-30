@@ -43,12 +43,12 @@ def selectavalue(sde,
     sdereturn = execute_immediate(sde,
                                   sql)
 
-    if not isinstance(sdereturn, list) and sdereturn is None:
+    if sdereturn is None:
         raise ValueError('Returned NULL from {0}'.format(sql))
-    if not isinstance(sdereturn, list):
-        return sdereturn
-    else:
+    if isinstance(sdereturn, list):
         raise ValueError('Did not return single value on {0}'.format(sql))
+
+    return sdereturn
 
 
 def selectacolumn(sde,
@@ -57,42 +57,13 @@ def selectacolumn(sde,
     sdereturn = execute_immediate(sde,
                                   sql)
 
-    output = []
-
     if isinstance(sdereturn, bool) and sdereturn:
+        return []
+    if isinstance(sdereturn, (str, int, float, complex)):
+        return [sdereturn]
+    if isinstance(sdereturn, list):
+        return [row[0] for row in sdereturn]
+    if sdereturn is None:
+        return [None]
 
-        return output
-
-    elif isinstance(sdereturn, str):
-
-        # just one value
-        # be consistent and return a
-        output = [sdereturn]
-        return output
-
-    elif isinstance(sdereturn, (int, float, complex)):
-
-        # just one value
-        # be consistent and return a
-        output = [sdereturn]
-        return output
-
-    elif isinstance(sdereturn, list):
-
-        # list of lists, but we only have one column
-        for val in sdereturn:
-            output.append(val[0])
-
-        return output
-
-    elif sdereturn is None:
-
-        # just returned null
-
-        output = [None]
-
-        return output
-
-    else:
-
-        raise ValueError('Unknown return type from {0}'.format(sql))
+    raise ValueError('Unknown return type from {0}'.format(sql))

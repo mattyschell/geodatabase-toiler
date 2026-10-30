@@ -1,9 +1,14 @@
-REM executes from ArcGIS Pro conda environment, SDEFILE env must be set
-set BASEPATH=C:\xx
-set SDEFILE=%BASEPATH%\Connections\postgresql\env\server\database\xxxxx.sde
-CALL c:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_cx_sde_postgresql.py
-set SDEFILE=%BASEPATH%\Connections\oracle19c\env\database\xxxxx.sde
-CALL c:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_cx_sde.py 
-CALL c:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_gdb.py
-CALL c:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_fc.py
-CALL c:\Progra~1\ArcGIS\Pro\bin\Python\scripts\propy.bat .\src\py\test_version.py
+set BASEPATH=X:\xxx
+set SDEFILE=%BASEPATH%\xxx\xxx.sde
+set PYTHON1=C:\Progra~1\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe
+set PYTHON2=C:\Users\%USERNAME%\AppData\Local\Programs\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe
+if exist "%PYTHON1%" (
+    set PROPY=%PYTHON1%
+) else if exist "%PYTHON2%" (
+    set PROPY=%PYTHON2%
+)
+call %PROPY% .\src\py\test_cx_sde_unit.py
+call %PROPY% .\src\py\test_cx_sde.py 
+call %PROPY% .\src\py\test_gdb.py
+call %PROPY% .\src\py\test_fc.py
+call %PROPY% .\src\py\test_version.py
