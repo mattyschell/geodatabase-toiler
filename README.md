@@ -29,8 +29,6 @@ The code in this repo is mostly simple opinionated wrappers to arcpy geodatabase
 
 For example, import a feature class from another geodatabase and enable versioning.
 
-
-
 ```py
 import gdb
 import fc
@@ -52,3 +50,21 @@ targetfc.version()
 
 See /src/py/test_*.py for more usage demonstrations.
 
+## Export a Historical Snapshot
+
+For an archive-enabled feature class, export the archived DEFAULT version at
+midnight UTC on a YYYYMMDD date:
+
+```py
+sourcefc = fc.Fc(gdb.Gdb()
+                ,'BLDG.BUILDING_HISTORIC')
+output = sourcefc.exportarchive('20260101'
+                               ,r'C:\Temp')
+```
+
+Output is named BUILDING_HISTORIC_20260101.shp and existing output is rejected. Native attributes and projection are retained subject to shapefile format limitations
+
+Pass an optional `exclude_fields` iterable to omit source fields before export,
+for example `exclude_fields=('created_user', 'last_edited_user')`. Names are
+matched case-insensitively and fields absent from the source are ignored.
+Other callers retain all fields by default.

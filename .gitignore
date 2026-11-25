@@ -153,3 +153,9 @@ scratch/
 
 # desktop software locks
 *.lock
+
+# Only allow batch files whose names start with sample-
+*.bat
+!sample*.bat
+
+-local.bat

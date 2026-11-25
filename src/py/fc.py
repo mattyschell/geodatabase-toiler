@@ -2,6 +2,8 @@ import arcpy
 import logging
 import pathlib
 import subprocess
+from datetime import datetime, timezone
+from uuid import uuid4
 
 import gdb
 import cx_sde
@@ -207,11 +209,77 @@ class Fc(object):
                                                    ,outputdir
                                                    ,outputname)
 
-    # TODO exportogeopackage if ESRI ever fills in some functionality in
-    # https://pro.arcgis.com/en/pro-app/latest/tool-reference/conversion/an-overview-of-the-to-geopackage-toolset.htm
+    def exportarchive(self, snapshotdate, outputdir,
+                      archive_timezone='America/New_York',
+                      exclude_fields=()):
 
-    # TODO exportogeojson if ESRI tool does something other than error 99999 (guess: sdo_geometry not supported)
-    # For now export to shp, then ogr2ogr to other formats.  Classic
+        """Export archived DEFAULT data at midnight UTC on a YYYYMMDD date.
+
+        archive_timezone is the database server's IANA time zone for
+        traditional-version archive timestamps, not the client time zone.
+        It defaults to America/New_York.
+        exclude_fields matches source field names case-insensitively;
+        names absent from the source are ignored.
+        """
+        from zoneinfo import ZoneInfo
+
+        if (not isinstance(snapshotdate, str)
+                or len(snapshotdate) != 8
+                or not snapshotdate.isascii()
+                or not snapshotdate.isdigit()):
+            raise ValueError('Snapshot date must be YYYYMMDD')
+
+        snapshot = datetime.strptime(snapshotdate, '%Y%m%d').replace(
+            tzinfo=timezone.utc)
+        if snapshot > datetime.now(timezone.utc):
+            raise ValueError('Snapshot date cannot be in the future (UTC)')
+        archive_date = snapshot.astimezone(
+            ZoneInfo(archive_timezone)).replace(tzinfo=None)
+
+        outputdir = pathlib.Path(outputdir)
+        if not outputdir.is_dir():
+            raise NotADirectoryError(str(outputdir))
+
+        output = outputdir / '{}_{}.shp'.format(
+            self.name.rsplit('.', 1)[-1], snapshotdate)
+        if output.exists() or arcpy.Exists(str(output)):
+            raise FileExistsError(str(output))
+
+        desc = arcpy.Describe(self.featureclass)
+        if not desc.isArchived:
+            raise ValueError('Archiving is not enabled on {}'.format(self.name))
+
+        logging.info('Exporting %s at %s (archive time %s %s) to %s',
+                     self.name, snapshot.isoformat(), archive_date,
+                     archive_timezone, output)
+        excluded = {name.casefold() for name in exclude_fields}
+        field_info = None
+        if excluded:
+            field_info = arcpy.FieldInfo()
+            for field in arcpy.ListFields(self.featureclass):
+                visibility = 'HIDDEN' if field.name.casefold() in excluded else 'VISIBLE'
+                field_info.addField(field.name, field.name, visibility, 'NONE')
+
+        layer = arcpy.management.MakeFeatureLayer(
+            self.featureclass, 'archive_{}'.format(uuid4().hex),
+            field_info=field_info).getOutput(0)
+        try:
+            arcpy.management.ChangeVersion(
+                layer, 'HISTORICAL', date=archive_date)
+            with arcpy.EnvManager(
+                    overwriteOutput=False,
+                    outputCoordinateSystem=desc.spatialReference,
+                    extent=None):
+                arcpy.management.CopyFeatures(layer, str(output))
+                if int(arcpy.management.GetCount(str(output)).getOutput(0)) == 0:
+                    arcpy.management.Delete(str(output))
+                    raise ValueError(
+                        'Archive snapshot for {} at {} UTC has no rows; check archive start date'.format(
+                            self.name, snapshotdate))
+        finally:
+            arcpy.management.Delete(layer)
+
+        return str(output)
 
     def createversionedviews(self):
 

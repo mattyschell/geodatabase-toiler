@@ -12,3 +12,5 @@ call %PROPY% .\src\py\test_cx_sde.py
 call %PROPY% .\src\py\test_gdb.py
 call %PROPY% .\src\py\test_fc.py
 call %PROPY% .\src\py\test_version.py
+rem test_fc_archive_unit is fully mocked
+call %PROPY% .\src\py\test_fc_archive_unit.py
